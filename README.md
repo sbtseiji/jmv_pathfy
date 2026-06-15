@@ -1,4 +1,4 @@
-# semgui — Graphical SEM for Jamovi
+# pathfy — Graphical SEM for Jamovi
 
 A [Jamovi](https://www.jamovi.org/) module for structural equation modeling with a graphical path diagram editor. Models are specified by drawing paths on a canvas and fitted using [lavaan](https://lavaan.ugent.be/).
 
@@ -120,7 +120,7 @@ Example datasets in Jamovi format (`.omv`) are available in the [`data/omv/`](da
 
 ## License
 
-GPL-3.0 — see [LICENSE](LICENSE) for details.
+GPL (>= 2) — see [LICENSE](LICENSE) for details.
 
 ---
 
