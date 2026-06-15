@@ -28,6 +28,20 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                         lavaanModel <- lavaanResult$syntax
                         safeToLabel <- lavaanResult$safeToLabel
 
+                        # Validate: latent variables used in paths must have loadings
+                        latentNodes <- Filter(function(n) identical(n$type, "latent"), spec$nodes)
+                        for (lNode in latentNodes) {
+                            lid <- lNode$id
+                            hasLoading   <- any(sapply(spec$edges, function(e) e$type == "loading" && (e$from == lid || e$to == lid)))
+                            usedInPath   <- any(sapply(spec$edges, function(e) e$type != "loading" && (e$from == lid || e$to == lid)))
+                            if (!hasLoading && usedInPath) {
+                                jmvcore::reject(sprintf(
+                                    .("Latent variable '%s' has no indicators. Add at least one loading before using it in a path."),
+                                    lNode$label
+                                ))
+                            }
+                        }
+
                         data      <- self$data
                         estimator <- toupper(self$options$estimator)
                         missing   <- self$options$missing

@@ -247,6 +247,9 @@ msgstr "ラベル"
 msgid "Latent Variables"
 msgstr "潜在変数"
 
+msgid "Latent variable '%s' has no indicators. Add at least one loading before using it in a path."
+msgstr "潜在変数「%s」に指標変数がありません。パスに使用する前に、因子負荷を少なくとも1つ追加してください。"
+
 #: R/semgui.b.R
 msgid "lavaan error: "
 msgstr "lavaanエラー: "

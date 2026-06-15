@@ -183,6 +183,9 @@ msgstr ""
 msgid "Latent Variables"
 msgstr ""
 
+msgid "Latent variable '%s' has no indicators. Add at least one loading before using it in a path."
+msgstr ""
+
 #: R/semgui.b.R
 msgid "lavaan error: "
 msgstr ""
