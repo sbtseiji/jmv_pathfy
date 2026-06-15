@@ -115,7 +115,7 @@
             "Graphical SEM": [
                 ""
             ],
-            "Hide residuals": [
+            "Residuals": [
                 ""
             ],
             "Index": [
@@ -211,7 +211,7 @@
             "SEM": [
                 ""
             ],
-            "Show parameter table": [
+            "Parameter estimates table": [
                 ""
             ],
             "SRMR": [

@@ -98,7 +98,7 @@ items:
         - std
         - ci
         - ciWidth
-        - hideResiduals
+        - showResiduals
       columns:
         - name: label
           title: Label

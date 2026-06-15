@@ -132,7 +132,7 @@ children:
           row: 0
         children:
           - type: CheckBox
-            name: hideResiduals
+            name: showResiduals
           - type: CheckBox
             name: std
       - type: LayoutBox
