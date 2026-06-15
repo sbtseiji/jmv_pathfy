@@ -187,6 +187,9 @@
             "Latent Variables": [
                 "潜在変数"
             ],
+            "Latent variable '%s' has no indicators. Add at least one loading before using it in a path.": [
+                "潜在変数「%s」に指標変数がありません。パスに使用する前に、因子負荷を少なくとも1つ追加してください。"
+            ],
             "lavaan error: ": [
                 "lavaanエラー: "
             ],

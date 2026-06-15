@@ -127,6 +127,9 @@
             "Latent Variables": [
                 ""
             ],
+            "Latent variable '%s' has no indicators. Add at least one loading before using it in a path.": [
+                ""
+            ],
             "lavaan error: ": [
                 ""
             ],
