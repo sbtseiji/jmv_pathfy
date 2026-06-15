@@ -409,13 +409,15 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `visible`="(testStats)"),
                     list(
                         `name`="ciLower", 
-                        `title`="Lower (95%CI)", 
+                        `title`="Lower", 
+                        `superTitle`="95% CI", 
                         `type`="number", 
                         `format`="zto", 
                         `visible`="(ci)"),
                     list(
                         `name`="ciUpper", 
-                        `title`="Upper (95%CI)", 
+                        `title`="Upper", 
+                        `superTitle`="95% CI", 
                         `type`="number", 
                         `format`="zto", 
                         `visible`="(ci)"),

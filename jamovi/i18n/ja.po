@@ -263,6 +263,10 @@ msgstr "左辺"
 msgid "Listwise deletion"
 msgstr "行全体を除外"
 
+#: Pathfy/results/parameters.columns.superTitle
+msgid "95% CI"
+msgstr "95% CI"
+
 #: Pathfy/results/parameters.columns.title
 msgid "Lower (95%CI)"
 msgstr "下限 (95%CI)"
