@@ -73,8 +73,8 @@
             "Model syntax": [
                 "モデル構文"
             ],
-            "Show lavaan syntax": [
-                "lavaanの構文を表示"
+            "lavaan syntax": [
+                "lavaanの構文"
             ],
             "Non-ASCII variable names are replaced as above to prevent lavaan errors.": [
                 "non-ASCII変数名はlavaan実行時のエラーを防ぐために上記のとおり置き換えています"
@@ -175,8 +175,8 @@
             "Graphical SEM": [
                 "グラフィカルSEM"
             ],
-            "Hide residuals": [
-                "誤差項を隠す"
+            "Residuals": [
+                "誤差項"
             ],
             "Index": [
                 "指標"
@@ -277,7 +277,7 @@
             "SEM": [
                 "SEM"
             ],
-            "Show parameter table": [
+            "Parameter estimates table": [
                 "パラメータ推定値の表"
             ],
             "SRMR": [

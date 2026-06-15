@@ -166,8 +166,8 @@ msgstr ""
 msgid "Graphical SEM"
 msgstr ""
 
-#: Pathfy/options/hideResiduals.title
-msgid "Hide residuals"
+#: Pathfy/options/showResiduals.title
+msgid "Residuals"
 msgstr ""
 
 #: Pathfy/results/modelFit.columns.title
@@ -300,7 +300,7 @@ msgid "SEM"
 msgstr ""
 
 #: Pathfy/options/showParamTable.title
-msgid "Show parameter table"
+msgid "Parameter estimates table"
 msgstr ""
 
 #: Pathfy/options/fitSRMR.title

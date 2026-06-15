@@ -162,7 +162,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 show <- if (op %in% c("=~", "~")) {
                     TRUE
                 } else if (op == "~~") {
-                    if (lhs == rhs) !opts$hideResiduals else TRUE
+                    if (lhs == rhs) isTRUE(opts$showResiduals) else TRUE
                 } else if (op == "~1") {
                     FALSE
                 } else {
@@ -299,7 +299,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             }
 
             showStd       <- if (isTRUE(self$options$std))          "true" else "false"
-            hideResiduals <- if (isTRUE(self$options$hideResiduals)) "true" else "false"
+            hideResiduals <- if (isTRUE(self$options$showResiduals)) "false" else "true"
 
             html <- .EDITOR_HTML
             html <- gsub("%%VARS%%",            varsJson,             html, fixed = TRUE)

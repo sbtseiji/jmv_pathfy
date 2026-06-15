@@ -98,13 +98,13 @@ options:
       type: Bool
       default: false
 
-    - name: hideResiduals
-      title: Hide residuals
+    - name: showResiduals
+      title: Residuals
       type: Bool
-      default: true
+      default: false
 
     - name: showParamTable
-      title: Show parameter table
+      title: Parameter estimates table
       type: Bool
       default: false
 
@@ -166,7 +166,7 @@ options:
       min: 0
 
     - name: showSyntax
-      title: Show lavaan syntax
+      title: lavaan syntax
       type: Bool
       default: false
 ...

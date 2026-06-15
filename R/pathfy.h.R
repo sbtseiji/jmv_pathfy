@@ -16,7 +16,7 @@ PathfyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             ci = FALSE,
             ciWidth = 95,
             std = FALSE,
-            hideResiduals = TRUE,
+            showResiduals = FALSE,
             showParamTable = FALSE,
             fitChiSq = TRUE,
             fitCFI = TRUE,
@@ -99,10 +99,10 @@ PathfyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "std",
                 std,
                 default=FALSE)
-            private$..hideResiduals <- jmvcore::OptionBool$new(
-                "hideResiduals",
-                hideResiduals,
-                default=TRUE)
+            private$..showResiduals <- jmvcore::OptionBool$new(
+                "showResiduals",
+                showResiduals,
+                default=FALSE)
             private$..showParamTable <- jmvcore::OptionBool$new(
                 "showParamTable",
                 showParamTable,
@@ -168,7 +168,7 @@ PathfyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..ci)
             self$.addOption(private$..ciWidth)
             self$.addOption(private$..std)
-            self$.addOption(private$..hideResiduals)
+            self$.addOption(private$..showResiduals)
             self$.addOption(private$..showParamTable)
             self$.addOption(private$..fitChiSq)
             self$.addOption(private$..fitCFI)
@@ -194,7 +194,7 @@ PathfyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ci = function() private$..ci$value,
         ciWidth = function() private$..ciWidth$value,
         std = function() private$..std$value,
-        hideResiduals = function() private$..hideResiduals$value,
+        showResiduals = function() private$..showResiduals$value,
         showParamTable = function() private$..showParamTable$value,
         fitChiSq = function() private$..fitChiSq$value,
         fitCFI = function() private$..fitCFI$value,
@@ -219,7 +219,7 @@ PathfyOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..ci = NA,
         ..ciWidth = NA,
         ..std = NA,
-        ..hideResiduals = NA,
+        ..showResiduals = NA,
         ..showParamTable = NA,
         ..fitChiSq = NA,
         ..fitCFI = NA,
@@ -366,7 +366,7 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "std",
                     "ci",
                     "ciWidth",
-                    "hideResiduals"),
+                    "showResiduals"),
                 columns=list(
                     list(
                         `name`="label", 
@@ -522,7 +522,7 @@ PathfyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param ci .
 #' @param ciWidth .
 #' @param std .
-#' @param hideResiduals .
+#' @param showResiduals .
 #' @param showParamTable .
 #' @param fitChiSq .
 #' @param fitCFI .
@@ -566,7 +566,7 @@ Pathfy <- function(
     ci = FALSE,
     ciWidth = 95,
     std = FALSE,
-    hideResiduals = TRUE,
+    showResiduals = FALSE,
     showParamTable = FALSE,
     fitChiSq = TRUE,
     fitCFI = TRUE,
@@ -602,7 +602,7 @@ Pathfy <- function(
         ci = ci,
         ciWidth = ciWidth,
         std = std,
-        hideResiduals = hideResiduals,
+        showResiduals = showResiduals,
         showParamTable = showParamTable,
         fitChiSq = fitChiSq,
         fitCFI = fitCFI,
