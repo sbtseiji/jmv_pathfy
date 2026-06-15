@@ -279,7 +279,8 @@ SemGuiResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                                 "vars",
                                 "modelSpec",
                                 "estimator",
-                                "missing"),
+                                "missing",
+                                "identification"),
                             columns=list(
                                 list(
                                     `name`="chi", 
@@ -305,7 +306,8 @@ SemGuiResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                                 "vars",
                                 "modelSpec",
                                 "estimator",
-                                "missing"),
+                                "missing",
+                                "identification"),
                             columns=list(
                                 list(
                                     `name`="cfi", 
@@ -360,6 +362,7 @@ SemGuiResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "modelSpec",
                     "estimator",
                     "missing",
+                    "identification",
                     "std",
                     "ci",
                     "ciWidth",
@@ -432,7 +435,8 @@ SemGuiResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "vars",
                     "modelSpec",
                     "estimator",
-                    "missing"),
+                    "missing",
+                    "identification"),
                 columns=list(
                     list(
                         `name`="lhs", 
@@ -466,7 +470,8 @@ SemGuiResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "vars",
                     "modelSpec",
                     "estimator",
-                    "missing"),
+                    "missing",
+                    "identification"),
                 columns=list(
                     list(
                         `name`="var", 

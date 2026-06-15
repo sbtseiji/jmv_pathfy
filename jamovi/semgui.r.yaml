@@ -23,6 +23,7 @@ items:
             - modelSpec
             - estimator
             - missing
+            - identification
           columns:
             - name: chi
               title: χ²
@@ -46,6 +47,7 @@ items:
             - modelSpec
             - estimator
             - missing
+            - identification
           columns:
             - name: cfi
               title: CFI
@@ -92,6 +94,7 @@ items:
         - modelSpec
         - estimator
         - missing
+        - identification
         - std
         - ci
         - ciWidth
@@ -154,6 +157,7 @@ items:
         - modelSpec
         - estimator
         - missing
+        - identification
       columns:
         - name: lhs
           title: LHS
@@ -183,6 +187,7 @@ items:
         - modelSpec
         - estimator
         - missing
+        - identification
       columns:
         - name: var
           title: ''

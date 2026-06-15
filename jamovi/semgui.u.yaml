@@ -27,7 +27,7 @@ children:
             fullRowSelect: true
             stretchFactor: 1
             height: large
-            addButton: 追加
+            addButton: Add
             template:
               type: TextBox
               format: string

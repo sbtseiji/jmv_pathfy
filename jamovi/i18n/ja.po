@@ -429,5 +429,5 @@ msgid "χ² test"
 msgstr "χ²検定"
 
 #: SemGui/ui[0][1]/latentVars.addButton
-msgid "追加"
-msgstr ""
+msgid "Add"
+msgstr "追加"
