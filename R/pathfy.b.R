@@ -269,23 +269,31 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
 
         # Render the HTML path diagram editor
         .renderEditor = function(vars, modelSpec, latentVars = "", estimates = NULL) {
-            varsJson <- jsonlite::toJSON(as.character(vars), auto_unbox = FALSE)
+            # Escape <, >, & so injected JSON cannot break out of <script> blocks
+            jsEscape <- function(s) {
+                s <- gsub("&", "\\u0026", s, fixed = TRUE)
+                s <- gsub("<", "\\u003c", s, fixed = TRUE)
+                s <- gsub(">", "\\u003e", s, fixed = TRUE)
+                s
+            }
+
+            varsJson <- jsEscape(jsonlite::toJSON(as.character(vars), auto_unbox = FALSE))
 
             latentNames <- character(0)
             if (length(latentVars) > 0) {
                 latentNames <- trimws(unlist(latentVars))
                 latentNames <- latentNames[nchar(latentNames) > 0]
             }
-            latentJson <- jsonlite::toJSON(latentNames, auto_unbox = FALSE)
+            latentJson <- jsEscape(jsonlite::toJSON(latentNames, auto_unbox = FALSE))
 
             # Parameter estimates for diagram display
             if (!is.null(estimates)) {
                 cols <- intersect(c("lhs","op","rhs","est","se","z","pvalue","std.all"),
                                   names(estimates))
-                estimatesJson <- jsonlite::toJSON(
+                estimatesJson <- jsEscape(jsonlite::toJSON(
                     estimates[, cols, drop = FALSE],
                     auto_unbox = FALSE, na = "null"
-                )
+                ))
             } else {
                 estimatesJson <- "[]"
             }
@@ -294,10 +302,10 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             hideResiduals <- if (isTRUE(self$options$hideResiduals)) "true" else "false"
 
             html <- .EDITOR_HTML
-            html <- gsub("%%VARS%%",            varsJson,      html, fixed = TRUE)
-            html <- gsub("%%MODEL_SPEC%%",       modelSpec,     html, fixed = TRUE)
-            html <- gsub("%%LATENT_VARS%%",      latentJson,    html, fixed = TRUE)
-            html <- gsub("%%PARAM_ESTIMATES%%",  estimatesJson, html, fixed = TRUE)
+            html <- gsub("%%VARS%%",            varsJson,             html, fixed = TRUE)
+            html <- gsub("%%MODEL_SPEC%%",       jsEscape(modelSpec),  html, fixed = TRUE)
+            html <- gsub("%%LATENT_VARS%%",      latentJson,           html, fixed = TRUE)
+            html <- gsub("%%PARAM_ESTIMATES%%",  estimatesJson,        html, fixed = TRUE)
             html <- gsub("%%SHOW_STD%%",         showStd,       html, fixed = TRUE)
             html <- gsub("%%HIDE_RESIDUALS%%",   hideResiduals, html, fixed = TRUE)
 
