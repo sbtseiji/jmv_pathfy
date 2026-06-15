@@ -7,11 +7,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "Language: en\n"
 
-#: SemGui/options/modelSpec.default
+#: Pathfy/options/modelSpec.default
 msgid "{\"nodes\":[],\"edges\":[]}"
 msgstr ""
 
-#: SemGui/ui[2][0][0]/ci/ciWidth.suffix
+#: Pathfy/ui[2][0][0]/ci/ciWidth.suffix
 msgid "%"
 msgstr ""
 
@@ -23,7 +23,7 @@ msgstr ""
 
 #: package.description
 #: package/analyses/SemGui.description
-#: SemGui/options.description.main
+#: Pathfy/options.description.main
 msgid ""
 "A graphical user interface for structural equation modeling. Supports CFA, "
 "path models, full SEM, higher-order factors, and bifactor models."
@@ -45,7 +45,7 @@ msgstr ""
 msgid "Add Regression"
 msgstr ""
 
-#: SemGui/options/fitAIC.title
+#: Pathfy/options/fitAIC.title
 msgid "AIC"
 msgstr ""
 
@@ -53,15 +53,15 @@ msgstr ""
 msgid "Auto Layout"
 msgstr ""
 
-#: SemGui/options/fitBIC.title
+#: Pathfy/options/fitBIC.title
 msgid "BIC"
 msgstr ""
 
-#: SemGui/ui[4][0][0]/residCov/residCovThreshold.label
+#: Pathfy/ui[4][0][0]/residCov/residCovThreshold.label
 msgid "Highlight above"
 msgstr ""
 
-#: SemGui/ui[4][1][0]/modIndices/modIndicesThreshold.label
+#: Pathfy/ui[4][1][0]/modIndices/modIndicesThreshold.label
 msgid "Show values above"
 msgstr ""
 
@@ -70,24 +70,24 @@ msgid "Cancel"
 msgstr ""
 
 #: package/analyses/SemGui.menuSubtitle
-#: SemGui/options.menuSubtitle
+#: Pathfy/options.menuSubtitle
 msgid "CFA, Path Models, Full SEM"
 msgstr ""
 
-#: SemGui/options/fitCFI.title
+#: Pathfy/options/fitCFI.title
 msgid "CFI"
 msgstr ""
 
-#: SemGui/options/ciWidth.title
+#: Pathfy/options/ciWidth.title
 msgid "Confidence interval width (%)"
 msgstr ""
 
-#: SemGui/options/ci.title
+#: Pathfy/options/ci.title
 msgid "Confidence intervals"
 msgstr ""
 
-#: SemGui/options/identification.title
-#: SemGui/ui[1][2][0].label
+#: Pathfy/options/identification.title
+#: Pathfy/ui[1][2][0].label
 msgid "Constraints"
 msgstr ""
 
@@ -115,7 +115,7 @@ msgstr ""
 msgid "Name already used as observed variable."
 msgstr ""
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "Estimate"
 msgstr ""
 
@@ -123,63 +123,63 @@ msgstr ""
 msgid "Estimates"
 msgstr ""
 
-#: SemGui/options/estimator.title
+#: Pathfy/options/estimator.title
 msgid "Estimator"
 msgstr ""
 
-#: SemGui/options/latentVars.template.default
+#: Pathfy/options/latentVars.template.default
 msgid "F1"
 msgstr ""
 
 #: package/analyses/SemGui.menuGroup
-#: SemGui/options.menuGroup
+#: Pathfy/options.menuGroup
 msgid "Factor"
 msgstr ""
 
-#: SemGui/ui[3][1][0].label
+#: Pathfy/ui[3][1][0].label
 msgid "Fit indices"
 msgstr ""
 
-#: SemGui/ui[3][0][0].label
+#: Pathfy/ui[3][0][0].label
 msgid "Fit tests"
 msgstr ""
 
-#: SemGui/options/identification/variance.title
+#: Pathfy/options/identification/variance.title
 msgid "Fix factor variance to 1"
 msgstr ""
 
-#: SemGui/options/identification/marker.title
+#: Pathfy/options/identification/marker.title
 msgid "Fix first loading to 1"
 msgstr ""
 
-#: SemGui/options/missing/fiml.title
+#: Pathfy/options/missing/fiml.title
 msgid "Full Information ML"
 msgstr ""
 
 #: package.title
 #: package/analyses/SemGui.title
 #: package/analyses/SemGui.menuTitle
-#: SemGui/options.title
-#: SemGui/options.menuTitle
-#: SemGui/ui.title
-#: SemGui/results.title
+#: Pathfy/options.title
+#: Pathfy/options.menuTitle
+#: Pathfy/ui.title
+#: Pathfy/results.title
 msgid "Graphical SEM"
 msgstr ""
 
-#: SemGui/options/hideResiduals.title
+#: Pathfy/options/hideResiduals.title
 msgid "Hide residuals"
 msgstr ""
 
-#: SemGui/results/modelFit.columns.title
+#: Pathfy/results/modelFit.columns.title
 msgid "Index"
 msgstr ""
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "Label"
 msgstr ""
 
-#: SemGui/options/latentVars.title
-#: SemGui/ui[0][1].label
+#: Pathfy/options/latentVars.title
+#: Pathfy/ui[0][1].label
 msgid "Latent Variables"
 msgstr ""
 
@@ -187,36 +187,36 @@ msgstr ""
 msgid "lavaan error: "
 msgstr ""
 
-#: SemGui/results/lavaanCode.title
+#: Pathfy/results/lavaanCode.title
 msgid "lavaan Model Syntax"
 msgstr ""
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "LHS"
 msgstr ""
 
-#: SemGui/options/missing/listwise.title
+#: Pathfy/options/missing/listwise.title
 msgid "Listwise deletion"
 msgstr ""
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "Lower (95%CI)"
 msgstr ""
 
-#: SemGui/options/missing.title
-#: SemGui/ui[1][1][0].label
+#: Pathfy/options/missing.title
+#: Pathfy/ui[1][1][0].label
 msgid "Missing Data"
 msgstr ""
 
-#: SemGui/options/estimator/ml.title
+#: Pathfy/options/estimator/ml.title
 msgid "ML"
 msgstr ""
 
-#: SemGui/options/estimator/mlm.title
+#: Pathfy/options/estimator/mlm.title
 msgid "MLM"
 msgstr ""
 
-#: SemGui/options/estimator/mlr.title
+#: Pathfy/options/estimator/mlr.title
 msgid "MLR (Robust)"
 msgstr ""
 
@@ -224,15 +224,15 @@ msgstr ""
 msgid "Model did not converge. Check model identification."
 msgstr ""
 
-#: SemGui/ui[3].label
+#: Pathfy/ui[3].label
 msgid "Model Fit"
 msgstr ""
 
-#: SemGui/results/modelFit.title
+#: Pathfy/results/modelFit.title
 msgid "Model Fit Indices"
 msgstr ""
 
-#: SemGui/options/modelSpec.title
+#: Pathfy/options/modelSpec.title
 msgid "Model Specification (JSON)"
 msgstr ""
 
@@ -240,8 +240,8 @@ msgstr ""
 msgid "No valid paths defined."
 msgstr ""
 
-#: SemGui/options/vars.title
-#: SemGui/ui[0][0].label
+#: Pathfy/options/vars.title
+#: Pathfy/ui[0][0].label
 msgid "Observed Variables"
 msgstr ""
 
@@ -249,15 +249,15 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "Type"
 msgstr ""
 
-#: SemGui/ui[1].label
+#: Pathfy/ui[1].label
 msgid "Options"
 msgstr ""
 
-#: SemGui/ui[2][1][0].label
+#: Pathfy/ui[2][1][0].label
 msgid "Output"
 msgstr ""
 
@@ -265,20 +265,20 @@ msgstr ""
 msgid "p (χ²)"
 msgstr ""
 
-#: SemGui/ui[2].label
-#: SemGui/results/parameters.title
+#: Pathfy/ui[2].label
+#: Pathfy/results/parameters.title
 msgid "Parameter Estimates"
 msgstr ""
 
-#: SemGui/results/diagram.title
+#: Pathfy/results/diagram.title
 msgid "Path Diagram Editor"
 msgstr ""
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "RHS"
 msgstr ""
 
-#: SemGui/options/fitRMSEA.title
+#: Pathfy/options/fitRMSEA.title
 msgid "RMSEA"
 msgstr ""
 
@@ -290,71 +290,71 @@ msgstr ""
 msgid "RMSEA 90%CI upper"
 msgstr ""
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "SE"
 msgstr ""
 
 #: package/analyses/SemGui.menuSubgroup
-#: SemGui/options.menuSubgroup
+#: Pathfy/options.menuSubgroup
 msgid "SEM"
 msgstr ""
 
-#: SemGui/options/showParamTable.title
+#: Pathfy/options/showParamTable.title
 msgid "Show parameter table"
 msgstr ""
 
-#: SemGui/options/fitSRMR.title
+#: Pathfy/options/fitSRMR.title
 msgid "SRMR"
 msgstr ""
 
-#: SemGui/options/std.title
+#: Pathfy/options/std.title
 msgid "Standardized estimates"
 msgstr ""
 
-#: SemGui/ui[2][0][0].label
+#: Pathfy/ui[2][0][0].label
 msgid "Statistics"
 msgstr ""
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "Std. Estimate"
 msgstr ""
 
-#: SemGui/options/testStats.title
+#: Pathfy/options/testStats.title
 msgid "Test statistics"
 msgstr ""
 
-#: SemGui/results/modelFit.columns.title
+#: Pathfy/results/modelFit.columns.title
 msgid "Threshold"
 msgstr ""
 
-#: SemGui/options/fitTLI.title
+#: Pathfy/options/fitTLI.title
 msgid "TLI"
 msgstr ""
 
-#: SemGui/options/estimator/uls.title
+#: Pathfy/options/estimator/uls.title
 msgid "ULS"
 msgstr ""
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "Upper (95%CI)"
 msgstr ""
 
-#: SemGui/results/modelFit.columns.title
+#: Pathfy/results/modelFit.columns.title
 msgid "Value"
 msgstr ""
 
-#: SemGui/ui[2][0][0]/ci/ciWidth.label
+#: Pathfy/ui[2][0][0]/ci/ciWidth.label
 msgid "Width"
 msgstr ""
 
-#: SemGui/options/estimator/wlsmv.title
+#: Pathfy/options/estimator/wlsmv.title
 msgid "WLSMV"
 msgstr ""
 
-#: SemGui/options/fitChiSq.title
+#: Pathfy/options/fitChiSq.title
 msgid "χ² test"
 msgstr ""
 
-#: SemGui/ui[0][1]/latentVars.addButton
+#: Pathfy/ui[0][1]/latentVars.addButton
 msgid "Add"
 msgstr ""

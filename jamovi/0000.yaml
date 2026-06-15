@@ -1,11 +1,11 @@
 ---
 title: Graphical SEM
-name: semgui
+name: pathfy
 version: 0.1.0
 jms: '1.0'
 authors:
   - Seiji Shibata
-maintainer: Seiji Shibata <shibata_seiji@isc.sagami-wu.ac.jp>
+maintainer: Seiji Shibata <sbtseiji@users.noreply.github.com>
 date: '2026-06-08'
 type: R
 description: >-
@@ -13,8 +13,8 @@ description: >-
   path models, full SEM, higher-order factors, and bifactor models.
 analyses:
   - title: Graphical SEM
-    name: SemGui
-    ns: semgui
+    name: Pathfy
+    ns: pathfy
     menuGroup: Factor
     menuSubgroup: SEM
     menuTitle: Graphical SEM

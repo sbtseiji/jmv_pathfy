@@ -6,11 +6,11 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Language: ja\n"
 
-#: SemGui/options/modelSpec.default
+#: Pathfy/options/modelSpec.default
 msgid "{\"nodes\":[],\"edges\":[]}"
 msgstr ""
 
-#: SemGui/ui[2][0][0]/ci/ciWidth.suffix
+#: Pathfy/ui[2][0][0]/ci/ciWidth.suffix
 msgid "%"
 msgstr ""
 
@@ -22,7 +22,7 @@ msgstr "⇐ 左パネルで変数を選択し、パス図エディタでモデ�
 
 #: package.description
 #: package/analyses/SemGui.description
-#: SemGui/options.description.main
+#: Pathfy/options.description.main
 msgid ""
 "A graphical user interface for structural equation modeling. Supports CFA, "
 "path models, full SEM, higher-order factors, and bifactor models."
@@ -68,7 +68,7 @@ msgstr "エディタでノードとパスを追加してください。"
 msgid "Add Regression"
 msgstr "回帰を追加"
 
-#: SemGui/options/fitAIC.title
+#: Pathfy/options/fitAIC.title
 msgid "AIC"
 msgstr "AIC"
 
@@ -76,11 +76,11 @@ msgstr "AIC"
 msgid "Auto Layout"
 msgstr "自動配置"
 
-#: SemGui/options/fitBIC.title
+#: Pathfy/options/fitBIC.title
 msgid "BIC"
 msgstr "BIC"
 
-#: SemGui/ui[4].label
+#: Pathfy/ui[4].label
 msgid "Additional Output"
 msgstr "追加の出力"
 
@@ -99,19 +99,19 @@ msgstr "non-ASCII変数名はlavaan実行時のエラーを防ぐために上記
 msgid "lavaan Model Syntax"
 msgstr "lavaanモデル構文"
 
-#: SemGui/options/modIndices.title
+#: Pathfy/options/modIndices.title
 msgid "Modification indices"
 msgstr "修正指数"
 
-#: SemGui/ui[4][0][0]/modIndices/modIndicesThreshold.label
+#: Pathfy/ui[4][0][0]/modIndices/modIndicesThreshold.label
 msgid "Highlight above"
 msgstr "これ以上の値を強調"
 
-#: SemGui/ui[4][1][0]/modIndices/modIndicesThreshold.label
+#: Pathfy/ui[4][1][0]/modIndices/modIndicesThreshold.label
 msgid "Show values above"
 msgstr "これ以上の値を表示"
 
-#: SemGui/results/modIndices.title
+#: Pathfy/results/modIndices.title
 msgid "MI"
 msgstr "修正指標"
 
@@ -121,11 +121,11 @@ msgstr "変化量"
 msgid "Modification Indices"
 msgstr "修正指数"
 
-#: SemGui/options/residCov.title
+#: Pathfy/options/residCov.title
 msgid "Residual covariances"
 msgstr "相関行列の残差"
 
-#: SemGui/results/residCov.title
+#: Pathfy/results/residCov.title
 msgid "Residual Covariances"
 msgstr "相関行列の残差"
 
@@ -134,24 +134,24 @@ msgid "Cancel"
 msgstr "キャンセル"
 
 #: package/analyses/SemGui.menuSubtitle
-#: SemGui/options.menuSubtitle
+#: Pathfy/options.menuSubtitle
 msgid "CFA, Path Models, Full SEM"
 msgstr "CFA・パスモデル・フルSEM"
 
-#: SemGui/options/fitCFI.title
+#: Pathfy/options/fitCFI.title
 msgid "CFI"
 msgstr "CFI"
 
-#: SemGui/options/ciWidth.title
+#: Pathfy/options/ciWidth.title
 msgid "Confidence interval width (%)"
 msgstr "信頼区間の幅 (%)"
 
-#: SemGui/options/ci.title
+#: Pathfy/options/ci.title
 msgid "Confidence intervals"
 msgstr "信頼区間を表示"
 
-#: SemGui/options/identification.title
-#: SemGui/ui[1][2][0].label
+#: Pathfy/options/identification.title
+#: Pathfy/ui[1][2][0].label
 msgid "Constraints"
 msgstr "制約"
 
@@ -179,7 +179,7 @@ msgstr "変数名を編集"
 msgid "Name already used as observed variable."
 msgstr "顕在変数として使用中の名前です。"
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "Estimate"
 msgstr "推定値"
 
@@ -187,63 +187,63 @@ msgstr "推定値"
 msgid "Estimates"
 msgstr "推定値"
 
-#: SemGui/options/estimator.title
+#: Pathfy/options/estimator.title
 msgid "Estimator"
 msgstr "推定法"
 
-#: SemGui/options/latentVars.template.default
+#: Pathfy/options/latentVars.template.default
 msgid "F1"
 msgstr ""
 
 #: package/analyses/SemGui.menuGroup
-#: SemGui/options.menuGroup
+#: Pathfy/options.menuGroup
 msgid "Factor"
 msgstr "因子分析"
 
-#: SemGui/ui[3][1][0].label
+#: Pathfy/ui[3][1][0].label
 msgid "Fit indices"
 msgstr "適合度指標"
 
-#: SemGui/ui[3][0][0].label
+#: Pathfy/ui[3][0][0].label
 msgid "Fit tests"
 msgstr "適合度検定"
 
-#: SemGui/options/identification/variance.title
+#: Pathfy/options/identification/variance.title
 msgid "Fix factor variance to 1"
 msgstr "因子の分散を1に固定"
 
-#: SemGui/options/identification/marker.title
+#: Pathfy/options/identification/marker.title
 msgid "Fix first loading to 1"
 msgstr "最初の係数を1に固定"
 
-#: SemGui/options/missing/fiml.title
+#: Pathfy/options/missing/fiml.title
 msgid "Full Information ML"
 msgstr "完全情報最尤推定法"
 
 #: package.title
 #: package/analyses/SemGui.title
 #: package/analyses/SemGui.menuTitle
-#: SemGui/options.title
-#: SemGui/options.menuTitle
-#: SemGui/ui.title
-#: SemGui/results.title
+#: Pathfy/options.title
+#: Pathfy/options.menuTitle
+#: Pathfy/ui.title
+#: Pathfy/results.title
 msgid "Graphical SEM"
 msgstr "グラフィカルSEM"
 
-#: SemGui/options/hideResiduals.title
+#: Pathfy/options/hideResiduals.title
 msgid "Hide residuals"
 msgstr "誤差項を隠す"
 
-#: SemGui/results/modelFit.columns.title
+#: Pathfy/results/modelFit.columns.title
 msgid "Index"
 msgstr "指標"
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "Label"
 msgstr "ラベル"
 
-#: SemGui/options/latentVars.title
-#: SemGui/ui[0][1].label
+#: Pathfy/options/latentVars.title
+#: Pathfy/ui[0][1].label
 msgid "Latent Variables"
 msgstr "潜在変数"
 
@@ -251,36 +251,36 @@ msgstr "潜在変数"
 msgid "lavaan error: "
 msgstr "lavaanエラー: "
 
-#: SemGui/results/lavaanCode.title
+#: Pathfy/results/lavaanCode.title
 msgid "lavaan Model Syntax"
 msgstr "lavaanモデル構文"
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "LHS"
 msgstr "左辺"
 
-#: SemGui/options/missing/listwise.title
+#: Pathfy/options/missing/listwise.title
 msgid "Listwise deletion"
 msgstr "行全体を除外"
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "Lower (95%CI)"
 msgstr "下限 (95%CI)"
 
-#: SemGui/options/missing.title
-#: SemGui/ui[1][1][0].label
+#: Pathfy/options/missing.title
+#: Pathfy/ui[1][1][0].label
 msgid "Missing Data"
 msgstr "欠損値処理"
 
-#: SemGui/options/estimator/ml.title
+#: Pathfy/options/estimator/ml.title
 msgid "ML"
 msgstr "最尤法（ML）"
 
-#: SemGui/options/estimator/mlm.title
+#: Pathfy/options/estimator/mlm.title
 msgid "MLM"
 msgstr "平均調整最尤法（MLM）"
 
-#: SemGui/options/estimator/mlr.title
+#: Pathfy/options/estimator/mlr.title
 msgid "MLR (Robust)"
 msgstr "ロバスト最尤法（MLR）"
 
@@ -288,15 +288,15 @@ msgstr "ロバスト最尤法（MLR）"
 msgid "Model did not converge. Check model identification."
 msgstr "モデルが収束しませんでした。識別可能性を確認してください。"
 
-#: SemGui/ui[3].label
+#: Pathfy/ui[3].label
 msgid "Model Fit"
 msgstr "モデル適合度"
 
-#: SemGui/results/modelFit.title
+#: Pathfy/results/modelFit.title
 msgid "Model Fit Indices"
 msgstr "モデル適合度指標"
 
-#: SemGui/options/modelSpec.title
+#: Pathfy/options/modelSpec.title
 msgid "Model Specification (JSON)"
 msgstr "モデル仕様 (JSON)"
 
@@ -304,8 +304,8 @@ msgstr "モデル仕様 (JSON)"
 msgid "No valid paths defined."
 msgstr "有効なパスが定義されていません。"
 
-#: SemGui/options/vars.title
-#: SemGui/ui[0][0].label
+#: Pathfy/options/vars.title
+#: Pathfy/ui[0][0].label
 msgid "Observed Variables"
 msgstr "顕在変数"
 
@@ -313,15 +313,15 @@ msgstr "顕在変数"
 msgid "OK"
 msgstr "OK"
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "Type"
 msgstr "種類"
 
-#: SemGui/ui[1].label
+#: Pathfy/ui[1].label
 msgid "Options"
 msgstr "オプション"
 
-#: SemGui/ui[2][1][0].label
+#: Pathfy/ui[2][1][0].label
 msgid "Output"
 msgstr "出力"
 
@@ -329,20 +329,20 @@ msgstr "出力"
 msgid "p (χ²)"
 msgstr "p値 (χ²)"
 
-#: SemGui/ui[2].label
-#: SemGui/results/parameters.title
+#: Pathfy/ui[2].label
+#: Pathfy/results/parameters.title
 msgid "Parameter Estimates"
 msgstr "パラメータ推定値"
 
-#: SemGui/results/diagram.title
+#: Pathfy/results/diagram.title
 msgid "Path Diagram Editor"
 msgstr "パス図エディタ"
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "RHS"
 msgstr "右辺"
 
-#: SemGui/options/fitRMSEA.title
+#: Pathfy/options/fitRMSEA.title
 msgid "RMSEA"
 msgstr "RMSEA"
 
@@ -363,71 +363,71 @@ msgstr "RMSEA 90%CI 下限"
 msgid "RMSEA 90%CI upper"
 msgstr "RMSEA 90%CI 上限"
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "SE"
 msgstr "標準誤差"
 
 #: package/analyses/SemGui.menuSubgroup
-#: SemGui/options.menuSubgroup
+#: Pathfy/options.menuSubgroup
 msgid "SEM"
 msgstr "SEM"
 
-#: SemGui/options/showParamTable.title
+#: Pathfy/options/showParamTable.title
 msgid "Show parameter table"
 msgstr "パラメータ推定値の表"
 
-#: SemGui/options/fitSRMR.title
+#: Pathfy/options/fitSRMR.title
 msgid "SRMR"
 msgstr "SRMR"
 
-#: SemGui/options/std.title
+#: Pathfy/options/std.title
 msgid "Standardized estimates"
 msgstr "標準化推定値を表示"
 
-#: SemGui/ui[2][0][0].label
+#: Pathfy/ui[2][0][0].label
 msgid "Statistics"
 msgstr "統計量"
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "Std. Estimate"
 msgstr "標準化推定値"
 
-#: SemGui/options/testStats.title
+#: Pathfy/options/testStats.title
 msgid "Test statistics"
 msgstr "検定統計量"
 
-#: SemGui/results/modelFit.columns.title
+#: Pathfy/results/modelFit.columns.title
 msgid "Threshold"
 msgstr "基準値"
 
-#: SemGui/options/fitTLI.title
+#: Pathfy/options/fitTLI.title
 msgid "TLI"
 msgstr "TLI"
 
-#: SemGui/options/estimator/uls.title
+#: Pathfy/options/estimator/uls.title
 msgid "ULS"
 msgstr "非加重最小二乗法（ULS）"
 
-#: SemGui/results/parameters.columns.title
+#: Pathfy/results/parameters.columns.title
 msgid "Upper (95%CI)"
 msgstr "上限 (95%CI)"
 
-#: SemGui/results/modelFit.columns.title
+#: Pathfy/results/modelFit.columns.title
 msgid "Value"
 msgstr "値"
 
-#: SemGui/ui[2][0][0]/ci/ciWidth.label
+#: Pathfy/ui[2][0][0]/ci/ciWidth.label
 msgid "Width"
 msgstr "区間幅"
 
-#: SemGui/options/estimator/wlsmv.title
+#: Pathfy/options/estimator/wlsmv.title
 msgid "WLSMV"
 msgstr "加重最小二乗法（WLSMV）"
 
-#: SemGui/options/fitChiSq.title
+#: Pathfy/options/fitChiSq.title
 msgid "χ² test"
 msgstr "χ²検定"
 
-#: SemGui/ui[0][1]/latentVars.addButton
+#: Pathfy/ui[0][1]/latentVars.addButton
 msgid "Add"
 msgstr "追加"
