@@ -152,6 +152,11 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
 
             lat_names <- lavaan::lavNames(fit, type = "lv")
             tbl <- self$results$parameters
+            if (isTRUE(opts$ci)) {
+                ciLabel <- paste0(opts$ciWidth, "% CI")
+                tbl$getColumn("ciLower")$setSuperTitle(ciLabel)
+                tbl$getColumn("ciUpper")$setSuperTitle(ciLabel)
+            }
 
             for (i in seq_len(nrow(pe))) {
                 row <- pe[i, ]
