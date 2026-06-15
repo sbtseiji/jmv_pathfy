@@ -105,95 +105,9 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             private$.renderEditor(vars, modelSpec, latentVars, estimates)
         },
 
-        # JSON model spec → lavaan syntax
-        # Unified "regression" type: auto-detects loading vs regression from node types
+        # JSON model spec → lavaan syntax (delegates to standalone spec_to_lavaan())
         .specToLavaan = function(spec) {
-            nodes <- spec$nodes
-            edges <- spec$edges
-
-            if (length(nodes) == 0 || length(edges) == 0) return(NULL)
-
-            nodeMap <- stats::setNames(
-                lapply(nodes, function(n) n),
-                sapply(nodes, function(n) n$id)
-            )
-
-            # lavaan's parser only handles ASCII identifiers.
-            # Map non-ASCII latent variable names to safe ASCII proxies;
-            # reverse-map after getting parameterEstimates().
-            labelToSafe <- list()
-            safeToLabel <- list()
-            safeIdx     <- 0L
-            for (n in nodes) {
-                if (!identical(n$type, "latent")) next
-                lbl <- n$label
-                if (!grepl("^[A-Za-z][A-Za-z0-9._]*$", lbl)) {
-                    safeIdx <- safeIdx + 1L
-                    safe <- paste0("LVSEM", safeIdx)
-                    labelToSafe[[lbl]] <- safe
-                    safeToLabel[[safe]] <- lbl
-                }
-            }
-
-            sn <- function(node) {
-                lbl <- node$label
-                if (identical(node$type, "latent") && !is.null(labelToSafe[[lbl]]))
-                    labelToSafe[[lbl]]
-                else
-                    lbl
-            }
-
-            loadings    <- list()
-            regressions <- list()
-            covariances <- character(0)
-
-            # Prepend fixed constraint to a term if edge$constraint is set
-            constrain <- function(term, edge) {
-                cv <- if (!is.null(edge$constraint)) trimws(as.character(edge$constraint)) else ""
-                if (nzchar(cv)) paste0(cv, "*", term) else term
-            }
-
-            for (edge in edges) {
-                fromNode <- nodeMap[[edge$from]]
-                toNode   <- nodeMap[[edge$to]]
-                if (is.null(fromNode) || is.null(toNode)) next
-
-                fl <- sn(fromNode)
-                tl <- sn(toNode)
-
-                if (edge$type == "loading") {
-                    if (is.null(loadings[[fl]])) loadings[[fl]] <- character(0)
-                    loadings[[fl]] <- c(loadings[[fl]], constrain(tl, edge))
-
-                } else if (edge$type == "regression") {
-                    if (identical(fromNode$type, "latent") && identical(toNode$type, "observed")) {
-                        # latent → observed regression: treat as loading (=~) for backward compat
-                        if (is.null(loadings[[fl]])) loadings[[fl]] <- character(0)
-                        loadings[[fl]] <- c(loadings[[fl]], constrain(tl, edge))
-                    } else {
-                        # latent→latent structural path (~), or observed→anything (~)
-                        if (is.null(regressions[[tl]])) regressions[[tl]] <- character(0)
-                        regressions[[tl]] <- c(regressions[[tl]], constrain(fl, edge))
-                    }
-
-                } else if (edge$type == "covariance") {
-                    if (fromNode$label != toNode$label) {
-                        covariances <- c(covariances, paste0(fl, " ~~ ", constrain(tl, edge)))
-                    }
-                }
-            }
-
-            lines <- character(0)
-            for (lhs in names(loadings)) {
-                lines <- c(lines, paste0(lhs, " =~ ", paste(loadings[[lhs]], collapse = " + ")))
-            }
-            for (lhs in names(regressions)) {
-                lines <- c(lines, paste0(lhs, " ~ ", paste(regressions[[lhs]], collapse = " + ")))
-            }
-            lines <- c(lines, covariances)
-
-            if (length(lines) == 0) return(NULL)
-            list(syntax = paste(lines, collapse = "\n"), safeToLabel = safeToLabel)
+            spec_to_lavaan(spec)
         },
 
         # Model fit tables (CFA-style: separate test and fit measures tables)
