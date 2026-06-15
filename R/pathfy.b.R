@@ -2,9 +2,9 @@
 # This file is a generated template, your changes will not be overwritten
 
 
-SemGuiClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
-    "SemGuiClass",
-    inherit = SemGuiBase,
+PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
+    "PathfyClass",
+    inherit = PathfyBase,
     private = list(
 
         .run = function() {
@@ -41,10 +41,14 @@ SemGuiClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                                 missing   = missing,
                                 std.lv    = std.lv
                             ),
-                            error = function(e) NULL
+                            error = function(e) e
                         )
 
-                        if (!is.null(fit) && lavaan::lavInspect(fit, "converged")) {
+                        if (inherits(fit, "error")) {
+                            jmvcore::reject(paste0(.("lavaan error: "), conditionMessage(fit)))
+                        } else if (!lavaan::lavInspect(fit, "converged")) {
+                            jmvcore::reject(.("Model did not converge. Check model identification."))
+                        } else {
                             estimates <- lavaan::parameterEstimates(
                                 fit,
                                 standardized = TRUE,

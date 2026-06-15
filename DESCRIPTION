@@ -1,4 +1,4 @@
-Package: semgui
+Package: pathfy
 Type: Package
 Title: Graphical SEM for Jamovi
 Version: 0.1.0
