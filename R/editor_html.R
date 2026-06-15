@@ -235,6 +235,7 @@
   var dragging = null;
   var mouseX = 0, mouseY = 0;
   var saveTimer = null;
+  var errorPos = {}; /* node id → {x,y} of error circle center, rebuilt each render() */
 
   var svg              = document.getElementById('canvas');
   var ctxNode          = document.getElementById('ctxNode');
@@ -329,10 +330,32 @@
 
   function render() {
     clearSVG();
+    /* Pre-compute error node positions so drawArc can route covariance arcs through them */
+    errorPos = {};
+    if (!HIDE_RESIDUALS && ESTIMATES.length > 0) {
+      for (var k=0;k<model.nodes.length;k++) {
+        var nd=model.nodes[k];
+        for (var ri=0;ri<ESTIMATES.length;ri++) {
+          var re=ESTIMATES[ri];
+          if (re.op==='~~'&&re.lhs===nd.label&&re.rhs===nd.label) {
+            var dir=nd.residualDir||'top', gap=nd.type==='observed'?60:72, ex, ey;
+            if      (dir==='bottom'){ex=nd.x;      ey=nd.y+gap;}
+            else if (dir==='left')  {ex=nd.x-gap;  ey=nd.y;   }
+            else if (dir==='right') {ex=nd.x+gap;  ey=nd.y;   }
+            else                    {ex=nd.x;       ey=nd.y-gap;}
+            errorPos[nd.id]={x:ex,y:ey};
+            break;
+          }
+        }
+      }
+    }
     for (var i=0;i<model.edges.length;i++) drawEdgeEl(model.edges[i]);
     if (pending) {
       var fn=findNode(pending.fromId);
-      if (fn) svg.appendChild(mkEl('line',{class:'edge-preview',x1:fn.x,y1:fn.y,x2:mouseX,y2:mouseY}));
+      if (fn) {
+        var fp=errorPos[fn.id];
+        svg.appendChild(mkEl('line',{class:'edge-preview',x1:fp?fp.x:fn.x,y1:fp?fp.y:fn.y,x2:mouseX,y2:mouseY}));
+      }
     }
     for (var j=0;j<model.nodes.length;j++) drawNodeEl(model.nodes[j]);
     /* Draw error/disturbance nodes when hideResiduals is off and estimates exist */
@@ -406,10 +429,17 @@
   }
 
   function drawArc(g,fn,tn,isSel,edge) {
-    var mx=(fn.x+tn.x)/2, my=(fn.y+tn.y)/2;
-    var dx=tn.x-fn.x, dy=tn.y-fn.y, len=Math.sqrt(dx*dx+dy*dy);
-    var cx=mx+(-dy/len*55), cy=my+(dx/len*55);
-    var p1=borderPt(fn,cx,cy), p2=borderPt(tn,cx,cy);
+    var er=13;
+    var fp=errorPos[fn.id], tp=errorPos[tn.id];
+    var fx=fp?fp.x:fn.x, fy=fp?fp.y:fn.y;
+    var tx=tp?tp.x:tn.x, ty=tp?tp.y:tn.y;
+    var mx=(fx+tx)/2, my=(fy+ty)/2;
+    var dx=tx-fx, dy=ty-fy, len=Math.sqrt(dx*dx+dy*dy);
+    var cx=mx+(-dy/(len||1)*55), cy=my+(dx/(len||1)*55);
+    function errBdr(c,t){var ddx=t.x-c.x,ddy=t.y-c.y,dd=Math.sqrt(ddx*ddx+ddy*ddy);
+      return dd>0?{x:c.x+ddx/dd*er,y:c.y+ddy/dd*er}:c;}
+    var p1=fp?errBdr(fp,{x:cx,y:cy}):borderPt(fn,cx,cy);
+    var p2=tp?errBdr(tp,{x:cx,y:cy}):borderPt(tn,cx,cy);
     var pd='M'+p1.x+' '+p1.y+' Q'+cx+' '+cy+' '+p2.x+' '+p2.y;
     var constrained=edge.constraint!=null&&edge.constraint!=='';
     var suf=isSel||constrained?'-sel':'';
