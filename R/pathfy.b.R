@@ -27,6 +27,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                     if (!is.null(lavaanResult)) {
                         lavaanModel <- lavaanResult$syntax
                         safeToLabel <- lavaanResult$safeToLabel
+                        labelToSafe <- lavaanResult$labelToSafe
 
                         # Validate: latent variables used in paths must have loadings
                         latentNodes <- Filter(function(n) identical(n$type, "latent"), spec$nodes)
@@ -42,7 +43,14 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                             }
                         }
 
-                        data      <- self$data
+                        data <- self$data
+                        # Rename non-ASCII observed variable columns to safe proxy names
+                        if (length(labelToSafe) > 0) {
+                            obsRename <- intersect(names(labelToSafe), names(data))
+                            if (length(obsRename) > 0)
+                                names(data)[match(obsRename, names(data))] <- unlist(labelToSafe[obsRename])
+                        }
+
                         estimator <- toupper(self$options$estimator)
                         missing   <- self$options$missing
                         std.lv    <- self$options$identification == "variance"

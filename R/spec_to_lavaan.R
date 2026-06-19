@@ -14,11 +14,11 @@ spec_to_lavaan <- function(spec) {
     safeToLabel <- list()
     safeIdx     <- 0L
     for (n in nodes) {
-        if (!identical(n$type, "latent")) next
         lbl <- n$label
         if (!grepl("^[A-Za-z][A-Za-z0-9._]*$", lbl)) {
             safeIdx <- safeIdx + 1L
-            safe <- paste0("LVSEM", safeIdx)
+            prefix <- if (identical(n$type, "latent")) "LVSEM" else "OBSEM"
+            safe <- paste0(prefix, safeIdx)
             labelToSafe[[lbl]] <- safe
             safeToLabel[[safe]] <- lbl
         }
@@ -26,10 +26,7 @@ spec_to_lavaan <- function(spec) {
 
     sn <- function(node) {
         lbl <- node$label
-        if (identical(node$type, "latent") && !is.null(labelToSafe[[lbl]]))
-            labelToSafe[[lbl]]
-        else
-            lbl
+        if (!is.null(labelToSafe[[lbl]])) labelToSafe[[lbl]] else lbl
     }
 
     constrain <- function(term, edge) {
@@ -79,5 +76,5 @@ spec_to_lavaan <- function(spec) {
     lines <- c(lines, covariances)
 
     if (length(lines) == 0) return(NULL)
-    list(syntax = paste(lines, collapse = "\n"), safeToLabel = safeToLabel)
+    list(syntax = paste(lines, collapse = "\n"), safeToLabel = safeToLabel, labelToSafe = labelToSafe)
 }
