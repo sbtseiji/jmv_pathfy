@@ -237,10 +237,7 @@ msgstr ""
 msgid "Model Syntax"
 msgstr ""
 
-msgid "Models with ordinal variables cannot use ML-based estimators. Please use WLSMV or another weighted least squares method."
-msgstr ""
-
-msgid "Only continuous or ordinal variables can be used. '%s' is a nominal variable."
+msgid "Only continuous (numeric) variables can be used. '%s' is a categorical variable."
 msgstr ""
 
 msgid "Right-click a node to add paths"
