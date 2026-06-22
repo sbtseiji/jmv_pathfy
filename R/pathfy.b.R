@@ -51,6 +51,18 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                                 names(data)[match(obsRename, names(data))] <- unlist(labelToSafe[obsRename])
                         }
 
+                        # Check for unordered factor variables
+                        obsNodes <- Filter(function(n) identical(n$type, "observed"), spec$nodes)
+                        for (oNode in obsNodes) {
+                            col <- if (!is.null(labelToSafe[[oNode$label]])) labelToSafe[[oNode$label]] else oNode$label
+                            if (col %in% names(data) && is.factor(data[[col]]) && !is.ordered(data[[col]])) {
+                                jmvcore::reject(sprintf(
+                                    .("Variable '%s' is a nominal (unordered) factor. Please set it as continuous or ordinal in the data editor."),
+                                    oNode$label
+                                ))
+                            }
+                        }
+
                         estimator <- toupper(self$options$estimator)
                         missing   <- self$options$missing
                         std.lv    <- self$options$identification == "variance"

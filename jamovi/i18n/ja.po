@@ -247,6 +247,9 @@ msgstr "ラベル"
 msgid "Latent Variables"
 msgstr "潜在変数"
 
+msgid "Variable '%s' is a nominal (unordered) factor. Please set it as continuous or ordinal in the data editor."
+msgstr "変数「%s」は名義変数（順序なし因子）です。データエディタで連続変数または順序変数に設定してください。"
+
 msgid "Right-click a node to add paths"
 msgstr "ノードを右クリックしてパスを追加"
 

@@ -237,6 +237,9 @@ msgstr ""
 msgid "Model Syntax"
 msgstr ""
 
+msgid "Variable '%s' is a nominal (unordered) factor. Please set it as continuous or ordinal in the data editor."
+msgstr ""
+
 msgid "Right-click a node to add paths"
 msgstr ""
 
