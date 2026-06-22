@@ -69,6 +69,9 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
 
                         estimator <- toupper(self$options$estimator)
                         missing   <- self$options$missing
+                        # FIML is only supported with ML-family estimators
+                        if (missing == "fiml" && !(estimator %in% c("ML", "MLR", "MLM")))
+                            missing <- "listwise"
                         std.lv    <- self$options$identification == "variance"
 
                         fit <- tryCatch(
