@@ -67,10 +67,10 @@
             "Additional Output": [
                 "追加の出力"
             ],
-            "Model modification": [
+            "Model Modification": [
                 "モデル修正"
             ],
-            "Model syntax": [
+            "Model Syntax": [
                 "モデル構文"
             ],
             "lavaan syntax": [
@@ -157,10 +157,10 @@
             "Factor": [
                 "因子分析"
             ],
-            "Fit indices": [
+            "Fit Indices": [
                 "適合度指標"
             ],
-            "Fit tests": [
+            "Fit Tests": [
                 "適合度検定"
             ],
             "Fix factor variance to 1": [
@@ -186,6 +186,21 @@
             ],
             "Latent Variables": [
                 "潜在変数"
+            ],
+            "Only continuous (numeric) variables can be used. '%s' is a categorical variable.": [
+                "分析に使用できるのは連続変数（数値型）のみです。「%s」はカテゴリ変数です。"
+            ],
+            "Missing data: Listwise deletion (Full Information ML is not available with this estimator)": [
+                "欠損値処理: 行全体を除外（この推定法では完全情報最尤推定法は使用できません）"
+            ],
+            "Right-click a node to add paths": [
+                "ノードを右クリックしてパスを追加"
+            ],
+            "Invalid constraint value: '": [
+                "無効な制約値: '"
+            ],
+            "' — must be a number.": [
+                "'は数値でなければなりません。"
             ],
             "Latent variable '%s' has no indicators. Add at least one loading before using it in a path.": [
                 "潜在変数「%s」に指標変数がありません。パスに使用する前に、因子負荷を少なくとも1つ追加してください。"

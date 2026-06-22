@@ -97,10 +97,10 @@
             "Factor": [
                 ""
             ],
-            "Fit indices": [
+            "Fit Indices": [
                 ""
             ],
-            "Fit tests": [
+            "Fit Tests": [
                 ""
             ],
             "Fix factor variance to 1": [
@@ -161,6 +161,27 @@
                 ""
             ],
             "Model Fit": [
+                ""
+            ],
+            "Model Modification": [
+                ""
+            ],
+            "Model Syntax": [
+                ""
+            ],
+            "Only continuous (numeric) variables can be used. '%s' is a categorical variable.": [
+                ""
+            ],
+            "Missing data: Listwise deletion (Full Information ML is not available with this estimator)": [
+                ""
+            ],
+            "Right-click a node to add paths": [
+                ""
+            ],
+            "Invalid constraint value: '": [
+                ""
+            ],
+            "' — must be a number.": [
                 ""
             ],
             "Model Fit Indices": [

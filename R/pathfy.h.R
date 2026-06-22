@@ -438,7 +438,8 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "modelSpec",
                     "estimator",
                     "missing",
-                    "identification"),
+                    "identification",
+                    "modIndicesThreshold"),
                 columns=list(
                     list(
                         `name`="lhs", 
@@ -473,7 +474,8 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "modelSpec",
                     "estimator",
                     "missing",
-                    "identification"),
+                    "identification",
+                    "residCovThreshold"),
                 columns=list(
                     list(
                         `name`="var", 
@@ -496,7 +498,7 @@ PathfyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "pathfy",
                 name = "Pathfy",
-                version = c(1,0,0),
+                version = c(1,0,1),
                 options = options,
                 results = PathfyResults$new(options=options),
                 data = data,
