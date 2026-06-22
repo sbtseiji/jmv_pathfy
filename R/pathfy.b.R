@@ -15,6 +15,10 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
 
             estimates <- NULL
 
+            # Render editor immediately so the diagram is always up-to-date,
+            # even when a reject() below interrupts the rest of .run()
+            private$.renderEditor(vars, modelSpec, latentVars, estimates)
+
             if (length(vars) > 0) {
                 spec <- tryCatch(
                     jsonlite::fromJSON(modelSpec, simplifyVector = FALSE),
@@ -111,6 +115,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                                 Filter(function(n) identical(n$type, "latent"), spec$nodes),
                                 function(n) n$label
                             )
+                            private$.renderEditor(vars, modelSpec, latentVars, estimates)
                             private$.populateFit(fit)
                             private$.populateParameters(fit, estimates, latentLabels)
                             if (isTRUE(self$options$modIndices))
@@ -143,8 +148,6 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 }
             }
 
-            # Render editor (always, with estimates when available)
-            private$.renderEditor(vars, modelSpec, latentVars, estimates)
         },
 
         # JSON model spec → lavaan syntax (delegates to standalone spec_to_lavaan())
