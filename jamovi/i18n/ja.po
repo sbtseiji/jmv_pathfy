@@ -250,6 +250,9 @@ msgstr "潜在変数"
 msgid "Only continuous (numeric) variables can be used. '%s' is a categorical variable."
 msgstr "分析に使用できるのは連続変数（数値型）のみです。「%s」はカテゴリ変数です。"
 
+msgid "Missing data: listwise deletion (FIML is not available with this estimator)"
+msgstr "欠損値処理: 行全体を除外（この推定法ではFIMLは使用できません）"
+
 msgid "Right-click a node to add paths"
 msgstr "ノードを右クリックしてパスを追加"
 

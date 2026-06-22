@@ -15,9 +15,16 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
 
             estimates <- NULL
 
+            # Detect FIML fallback (FIML selected but estimator doesn't support it)
+            fimlFallback <- self$options$missing == "fiml" &&
+                            !(toupper(self$options$estimator) %in% c("ML", "MLR", "MLM"))
+            canvasNote <- if (fimlFallback)
+                .("Missing data: listwise deletion (FIML is not available with this estimator)")
+            else ""
+
             # Render editor immediately so the diagram is always up-to-date,
             # even when a reject() below interrupts the rest of .run()
-            private$.renderEditor(vars, modelSpec, latentVars, estimates)
+            private$.renderEditor(vars, modelSpec, latentVars, estimates, canvasNote)
 
             if (length(vars) > 0) {
                 spec <- tryCatch(
@@ -110,7 +117,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                                 Filter(function(n) identical(n$type, "latent"), spec$nodes),
                                 function(n) n$label
                             )
-                            private$.renderEditor(vars, modelSpec, latentVars, estimates)
+                            private$.renderEditor(vars, modelSpec, latentVars, estimates, canvasNote)
                             private$.populateFit(fit)
                             private$.populateParameters(fit, estimates, latentLabels)
                             if (isTRUE(self$options$modIndices))
@@ -313,7 +320,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         },
 
         # Render the HTML path diagram editor
-        .renderEditor = function(vars, modelSpec, latentVars = "", estimates = NULL) {
+        .renderEditor = function(vars, modelSpec, latentVars = "", estimates = NULL, note = "") {
             # Escape <, >, & so injected JSON cannot break out of <script> blocks
             jsEscape <- function(s) {
                 s <- gsub("&", "\\u0026", s, fixed = TRUE)
@@ -378,6 +385,9 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             html <- gsub("%%LABEL_CANCEL%%",       .("Cancel"),                          html, fixed = TRUE)
             html <- gsub("%%LABEL_EDIT_NAME%%",    .("Edit variable name"),              html, fixed = TRUE)
             html <- gsub("%%LABEL_NAME_CONFLICT%%", .("Name already used as observed variable."), html, fixed = TRUE)
+
+            html <- gsub("%%CANVAS_NOTE_DISPLAY%%", if (nzchar(note)) "block" else "none", html, fixed = TRUE)
+            html <- gsub("%%CANVAS_NOTE%%",         note,                                   html, fixed = TRUE)
 
             self$results$diagram$setContent(html)
         }
