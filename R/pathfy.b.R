@@ -57,7 +57,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                             col <- if (!is.null(labelToSafe[[oNode$label]])) labelToSafe[[oNode$label]] else oNode$label
                             if (col %in% names(data) && is.factor(data[[col]]) && !is.ordered(data[[col]])) {
                                 jmvcore::reject(sprintf(
-                                    .("Variable '%s' is a nominal (unordered) factor. Please set it as continuous or ordinal in the data editor."),
+                                    .("Only continuous or ordinal variables can be used. '%s' is a nominal variable."),
                                     oNode$label
                                 ))
                             }

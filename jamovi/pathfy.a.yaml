@@ -23,8 +23,10 @@ options:
       type: Variables
       suggested:
         - continuous
+        - ordinal
       permitted:
         - numeric
+        - factor
 
     - name: latentVars
       title: Latent Variables
