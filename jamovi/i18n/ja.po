@@ -247,6 +247,9 @@ msgstr "ラベル"
 msgid "Latent Variables"
 msgstr "潜在変数"
 
+msgid "Models with ordinal variables cannot use ML-based estimators. Please use WLSMV or another weighted least squares method."
+msgstr "順序変数を含むモデルには最尤法（ML）系の推定法は使用できません。加重最小二乗法（WLSMV）など、別の推定法を使用してください。"
+
 msgid "Only continuous or ordinal variables can be used. '%s' is a nominal variable."
 msgstr "分析に使用できるのは連続変数、または順序変数のみです。「%s」は名義変数です。"
 

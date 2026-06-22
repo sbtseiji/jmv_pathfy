@@ -51,16 +51,24 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                                 names(data)[match(obsRename, names(data))] <- unlist(labelToSafe[obsRename])
                         }
 
-                        # Check for unordered factor variables
+                        # Check variable types
                         obsNodes <- Filter(function(n) identical(n$type, "observed"), spec$nodes)
+                        hasOrdinal <- FALSE
                         for (oNode in obsNodes) {
                             col <- if (!is.null(labelToSafe[[oNode$label]])) labelToSafe[[oNode$label]] else oNode$label
-                            if (col %in% names(data) && is.factor(data[[col]]) && !is.ordered(data[[col]])) {
-                                jmvcore::reject(sprintf(
-                                    .("Only continuous or ordinal variables can be used. '%s' is a nominal variable."),
-                                    oNode$label
-                                ))
+                            if (col %in% names(data) && is.factor(data[[col]])) {
+                                if (!is.ordered(data[[col]])) {
+                                    jmvcore::reject(sprintf(
+                                        .("Only continuous or ordinal variables can be used. '%s' is a nominal variable."),
+                                        oNode$label
+                                    ))
+                                } else {
+                                    hasOrdinal <- TRUE
+                                }
                             }
+                        }
+                        if (hasOrdinal && self$options$estimator %in% c("ml", "mlr", "mlm")) {
+                            jmvcore::reject(.("Models with ordinal variables cannot use ML-based estimators. Please use WLSMV or another weighted least squares method."))
                         }
 
                         estimator <- toupper(self$options$estimator)
