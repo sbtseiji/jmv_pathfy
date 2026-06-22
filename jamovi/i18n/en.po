@@ -240,7 +240,7 @@ msgstr ""
 msgid "Only continuous (numeric) variables can be used. '%s' is a categorical variable."
 msgstr ""
 
-msgid "Missing data: listwise deletion (FIML is not available with this estimator)"
+msgid "Missing data: Listwise deletion (Full Information ML is not available with this estimator)"
 msgstr ""
 
 msgid "Right-click a node to add paths"

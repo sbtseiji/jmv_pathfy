@@ -19,7 +19,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             fimlFallback <- self$options$missing == "fiml" &&
                             !(toupper(self$options$estimator) %in% c("ML", "MLR", "MLM"))
             canvasNote <- if (fimlFallback)
-                .("Missing data: listwise deletion (FIML is not available with this estimator)")
+                .("Missing data: Listwise deletion (Full Information ML is not available with this estimator)")
             else ""
 
             # Render editor immediately so the diagram is always up-to-date,
