@@ -84,10 +84,10 @@ msgstr "BIC"
 msgid "Additional Output"
 msgstr "追加の出力"
 
-msgid "Model modification"
+msgid "Model Modification"
 msgstr "モデル修正"
 
-msgid "Model syntax"
+msgid "Model Syntax"
 msgstr "モデル構文"
 
 msgid "lavaan syntax"
@@ -201,11 +201,11 @@ msgid "Factor"
 msgstr "因子分析"
 
 #: Pathfy/ui[3][1][0].label
-msgid "Fit indices"
+msgid "Fit Indices"
 msgstr "適合度指標"
 
 #: Pathfy/ui[3][0][0].label
-msgid "Fit tests"
+msgid "Fit Tests"
 msgstr "適合度検定"
 
 #: Pathfy/options/identification/variance.title
@@ -246,6 +246,12 @@ msgstr "ラベル"
 #: Pathfy/ui[0][1].label
 msgid "Latent Variables"
 msgstr "潜在変数"
+
+msgid "Invalid constraint value: '"
+msgstr "無効な制約値: '"
+
+msgid "' — must be a number."
+msgstr "'は数値でなければなりません。"
 
 msgid "Latent variable '%s' has no indicators. Add at least one loading before using it in a path."
 msgstr "潜在変数「%s」に指標変数がありません。パスに使用する前に、因子負荷を少なくとも1つ追加してください。"

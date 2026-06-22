@@ -755,7 +755,7 @@
         constraintError.style.display='block'; constraintInput.style.borderColor='#c62828'; return;
       }
       var edge=model.edges.find(function(e){return e.id===constraintPopup._eid;});
-      if (edge) { edge.constraint=val===''?null:val; saveNow(); render(); }
+      if (edge) { edge.constraint=val===''?null:String(parseFloat(val)); saveNow(); render(); }
     }
     constraintError.style.display='none'; constraintInput.style.borderColor='';
     constraintPopup.classList.add('hidden');

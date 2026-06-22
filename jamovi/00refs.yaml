@@ -1,0 +1,12 @@
+- name: lavaan
+  type: article
+  author:
+    - family: Rosseel
+      given: Y.
+  year: 2012
+  title: "lavaan: An R Package for Structural Equation Modeling"
+  journal: Journal of Statistical Software
+  volume: 48
+  issue: 2
+  pages: 1--36
+  url: https://doi.org/10.18637/jss.v048.i02

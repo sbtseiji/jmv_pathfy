@@ -93,7 +93,7 @@ children:
           row: 0
         children:
           - type: Label
-            label: Fit tests
+            label: Fit Tests
             children:
               - type: CheckBox
                 name: fitChiSq
@@ -105,7 +105,7 @@ children:
           row: 0
         children:
           - type: Label
-            label: Fit indices
+            label: Fit Indices
             children:
               - type: CheckBox
                 name: fitCFI
@@ -171,7 +171,7 @@ children:
           row: 0
         children:
           - type: Label
-            label: Model modification
+            label: Model Modification
             children:
               - type: CheckBox
                 name: residCov
@@ -197,7 +197,7 @@ children:
           row: 0
         children:
           - type: Label
-            label: Model syntax
+            label: Model Syntax
             children:
               - type: CheckBox
                 name: showSyntax

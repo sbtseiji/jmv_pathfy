@@ -1,0 +1,26 @@
+version: 1
+
+project:
+  name: semgui
+  website: https://github.com/sshibata/jmv_semgui
+  instructions: >
+    Translate the UI strings for the semgui Jamovi module (Graphical SEM).
+    Technical terms like "lavaan", "CFA", "SEM", "RMSEA", "CFI", "MLR", "FIML"
+    should NOT be translated — keep them as-is.
+    Operator symbols like "=~", "~~", "~" should be preserved.
+
+components:
+  - name: Jamovi Module
+    slug: semgui
+    vcs: git
+    repo: https://github.com/sshibata/jmv_semgui
+    branch: main
+    filemask: jamovi/i18n/*.po
+    template: jamovi/i18n/en.po
+    file_format: po
+    license: GPL-3.0-or-later
+    new_base: jamovi/i18n/en.po
+    manage_units: true
+    push_on_commit: false
+    allow_translation_propagation: true
+    check_flags: ignore-inconsistent

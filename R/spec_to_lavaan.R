@@ -31,7 +31,10 @@ spec_to_lavaan <- function(spec) {
 
     constrain <- function(term, edge) {
         cv <- if (!is.null(edge$constraint)) trimws(as.character(edge$constraint)) else ""
-        if (nzchar(cv)) paste0(cv, "*", term) else term
+        if (!nzchar(cv)) return(term)
+        if (!suppressWarnings(is.finite(as.numeric(cv))))
+            jmvcore::reject(paste0(.("Invalid constraint value: '"), cv, .("' — must be a number.")))
+        paste0(cv, "*", term)
     }
 
     loadings    <- list()

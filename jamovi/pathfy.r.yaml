@@ -160,6 +160,7 @@ items:
         - estimator
         - missing
         - identification
+        - modIndicesThreshold
       columns:
         - name: lhs
           title: LHS
@@ -190,6 +191,7 @@ items:
         - estimator
         - missing
         - identification
+        - residCovThreshold
       columns:
         - name: var
           title: ''

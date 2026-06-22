@@ -137,11 +137,11 @@ msgid "Factor"
 msgstr ""
 
 #: Pathfy/ui[3][1][0].label
-msgid "Fit indices"
+msgid "Fit Indices"
 msgstr ""
 
 #: Pathfy/ui[3][0][0].label
-msgid "Fit tests"
+msgid "Fit Tests"
 msgstr ""
 
 #: Pathfy/options/identification/variance.title
@@ -229,6 +229,18 @@ msgstr ""
 
 #: Pathfy/ui[3].label
 msgid "Model Fit"
+msgstr ""
+
+msgid "Model Modification"
+msgstr ""
+
+msgid "Model Syntax"
+msgstr ""
+
+msgid "Invalid constraint value: '"
+msgstr ""
+
+msgid "' — must be a number."
 msgstr ""
 
 #: Pathfy/results/modelFit.title
