@@ -247,6 +247,9 @@ msgstr "ラベル"
 msgid "Latent Variables"
 msgstr "潜在変数"
 
+msgid "Right-click a node to add paths"
+msgstr "ノードを右クリックしてパスを追加"
+
 msgid "Invalid constraint value: '"
 msgstr "無効な制約値: '"
 

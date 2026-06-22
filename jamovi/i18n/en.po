@@ -237,6 +237,9 @@ msgstr ""
 msgid "Model Syntax"
 msgstr ""
 
+msgid "Right-click a node to add paths"
+msgstr ""
+
 msgid "Invalid constraint value: '"
 msgstr ""
 

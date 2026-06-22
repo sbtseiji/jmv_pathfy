@@ -70,6 +70,9 @@
 .edge-constrained > line,
 .edge-constrained > path { stroke: #1565C0; }
 
+/* ── canvas hint ─────────────────────────────────────────── */
+.canvas-hint { fill: #bbb; font-size: 13px; pointer-events: none; user-select: none; }
+
 /* ── constraint label on edges ───────────────────────────── */
 .constraint-lbl {
   font-size: 10px; fill: #1565C0; font-weight: bold; text-anchor: middle;
@@ -375,6 +378,11 @@
       }
     }
     btnEst.classList.toggle('active', showEst && ESTIMATES.length>0);
+    if (model.nodes.length > 0 && model.edges.length === 0 && !pending) {
+      var hint = mkEl('text', {'x':'50%','y':'50%','text-anchor':'middle','dominant-baseline':'middle','class':'canvas-hint'});
+      hint.textContent = '%%LABEL_HINT_RIGHTCLICK%%';
+      svg.appendChild(hint);
+    }
   }
 
   function mkEl(tag, attrs) {
