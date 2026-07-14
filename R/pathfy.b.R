@@ -231,11 +231,17 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                     op
                 )
 
+                # For regressions, lavaan's lhs is the outcome and rhs is the
+                # predictor, so the displayed arrow direction must be reversed
+                # (predictor -> outcome) relative to loadings (latent -> indicator).
+                dispLhs <- if (op == "~") rhs else lhs
+                dispRhs <- if (op == "~") lhs else rhs
+
                 tbl$addRow(rowKey=i, values=list(
                     label   = if (!is.null(row$label) && !is.na(row$label)) as.character(row$label) else "",
-                    lhs     = lhs,
+                    lhs     = dispLhs,
                     op      = opDisplay,
-                    rhs     = rhs,
+                    rhs     = dispRhs,
                     est     = as.numeric(row$est),
                     se      = as.numeric(row$se),
                     z       = as.numeric(row$z),
@@ -273,10 +279,14 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 op  <- as.character(row$op)
                 opDisplay <- switch(op,
                     "=~" = "->", "~" = "->", "~~" = "<->", op)
+                lhs <- as.character(row$lhs)
+                rhs <- as.character(row$rhs)
+                dispLhs <- if (op == "~") rhs else lhs
+                dispRhs <- if (op == "~") lhs else rhs
                 tbl$addRow(rowKey = i, values = list(
-                    lhs = as.character(row$lhs),
+                    lhs = dispLhs,
                     op  = opDisplay,
-                    rhs = as.character(row$rhs),
+                    rhs = dispRhs,
                     mi  = as.numeric(row$mi),
                     epc = as.numeric(row$epc)
                 ))
