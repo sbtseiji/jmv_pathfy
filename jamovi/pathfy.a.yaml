@@ -5,7 +5,7 @@ menuGroup: Factor
 menuSubgroup: SEM
 menuTitle: Graphical SEM
 menuSubtitle: CFA, Path Models, Full SEM
-version: '1.0.2'
+version: '1.0.3'
 jas: '1.2'
 
 description:
