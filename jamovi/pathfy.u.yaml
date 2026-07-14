@@ -16,11 +16,16 @@ children:
             isTarget: true
             height: large
       - type: LayoutBox
-        margin: large
         stretchFactor: 1
         children:
+          - type: LayoutBox
+            margin: normal
+            children:
+              - type: Label
+                label: ''
           - type: Label
             label: Latent Variables
+            margin: none
           - type: ListBox
             name: latentVars
             showColumnHeaders: false
@@ -28,6 +33,7 @@ children:
             stretchFactor: 1
             height: large
             addButton: Add
+            margin: none
             template:
               type: TextBox
               format: string

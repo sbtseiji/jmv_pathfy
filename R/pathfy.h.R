@@ -272,7 +272,7 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         self$add(jmvcore::Table$new(
                             options=options,
                             name="test",
-                            title="Fit tests",
+                            title="Fit Tests",
                             rows=1,
                             visible="(fitChiSq)",
                             clearWith=list(
@@ -299,7 +299,7 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         self$add(jmvcore::Table$new(
                             options=options,
                             name="fitMeasures",
-                            title="Fit indices",
+                            title="Fit Indices",
                             rows=1,
                             visible="(fitCFI || fitTLI || fitSRMR || fitRMSEA || fitAIC || fitBIC)",
                             clearWith=list(
@@ -498,7 +498,7 @@ PathfyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "pathfy",
                 name = "Pathfy",
-                version = c(1,0,1),
+                version = c(1,0,2),
                 options = options,
                 results = PathfyResults$new(options=options),
                 data = data,
