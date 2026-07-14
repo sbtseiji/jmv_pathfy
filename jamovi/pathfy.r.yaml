@@ -14,7 +14,7 @@ items:
       type: Group
       items:
         - name: test
-          title: Fit tests
+          title: Fit Tests
           type: Table
           rows: 1
           visible: (fitChiSq)
@@ -38,7 +38,7 @@ items:
               format: zto,pvalue
 
         - name: fitMeasures
-          title: Fit indices
+          title: Fit Indices
           type: Table
           rows: 1
           visible: (fitCFI || fitTLI || fitSRMR || fitRMSEA || fitAIC || fitBIC)
