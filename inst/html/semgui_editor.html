@@ -555,13 +555,119 @@
 
   /* ── auto layout ────────────────────────────────────────── */
 
+  /* Layered layout: latents/structural observed variables ("core" nodes) are
+     placed left-to-right by causal layer (based on regression edges), with
+     each layer's nodes stacked vertically. Pure single-factor indicators
+     (observed nodes only used as a loading target of one latent) are excluded
+     from the core layout and instead fanned in a row directly below their own
+     parent latent, so factors don't get visually mixed together. */
   function autoLayout() {
     var W = Math.max(svg.getBoundingClientRect().width || 0, CANVAS_W);
     var H = CANVAS_H;
-    var lat=model.nodes.filter(function(n){return n.type==='latent';});
-    var obs=model.nodes.filter(function(n){return n.type==='observed';});
-    lat.forEach(function(n,i){n.x=Math.round(W*(i+1)/(lat.length+1));n.y=Math.round(H*0.28);});
-    obs.forEach(function(n,i){n.x=Math.round(W*(i+1)/(obs.length+1));n.y=Math.round(H*0.72);});
+
+    var nodesById = {};
+    model.nodes.forEach(function(n){ nodesById[n.id] = n; });
+
+    var loadingTargets = {}; /* observed id -> [latent ids] loading onto it */
+    var inOtherEdge     = {}; /* node id -> true if used in a regression/covariance edge */
+    model.edges.forEach(function(e) {
+      if (e.type === 'loading') {
+        (loadingTargets[e.to] = loadingTargets[e.to] || []).push(e.from);
+      } else {
+        inOtherEdge[e.from] = true;
+        inOtherEdge[e.to]   = true;
+      }
+    });
+
+    /* observed node -> parent latent id, only for "pure" single-factor indicators */
+    var indicatorOf = {};
+    model.nodes.forEach(function(n) {
+      if (n.type === 'observed') {
+        var loaders = loadingTargets[n.id];
+        if (loaders && loaders.length === 1 && !inOtherEdge[n.id]) indicatorOf[n.id] = loaders[0];
+      }
+    });
+
+    var coreNodes = model.nodes.filter(function(n) { return indicatorOf[n.id] === undefined; });
+    var coreIds = {};
+    coreNodes.forEach(function(n) { coreIds[n.id] = true; });
+
+    /* structural graph: regression edges between core nodes only */
+    var outEdges = {}, inDeg = {};
+    coreNodes.forEach(function(n) { outEdges[n.id] = []; inDeg[n.id] = 0; });
+    model.edges.forEach(function(e) {
+      if (e.type === 'regression' && coreIds[e.from] && coreIds[e.to] && e.from !== e.to) {
+        outEdges[e.from].push(e.to);
+        inDeg[e.to]++;
+      }
+    });
+
+    /* longest-path layering via Kahn's topological sort (cycles just fall back to layer 0) */
+    var layer = {};
+    coreNodes.forEach(function(n) { layer[n.id] = 0; });
+    var inDegLeft = {};
+    coreNodes.forEach(function(n) { inDegLeft[n.id] = inDeg[n.id]; });
+    var queue = coreNodes.filter(function(n) { return inDeg[n.id] === 0; }).map(function(n) { return n.id; });
+    var qi = 0;
+    while (qi < queue.length) {
+      var id = queue[qi++];
+      outEdges[id].forEach(function(toId) {
+        if (layer[toId] < layer[id] + 1) layer[toId] = layer[id] + 1;
+        inDegLeft[toId]--;
+        if (inDegLeft[toId] === 0) queue.push(toId);
+      });
+    }
+
+    var maxLayer = 0;
+    coreNodes.forEach(function(n) { if (layer[n.id] > maxLayer) maxLayer = layer[n.id]; });
+    var numLayers = maxLayer + 1;
+
+    var byLayer = [];
+    for (var li = 0; li <= maxLayer; li++) byLayer.push([]);
+    coreNodes.forEach(function(n) { byLayer[layer[n.id]].push(n); });
+
+    var marginX = 70, marginY = 60;
+
+    if (numLayers <= 1) {
+      /* no structural edges among core nodes: spread them in a single row
+         (classic CFA look — factors across the top, indicators fanned below) */
+      var row = byLayer[0] || [];
+      var y0 = Math.round(H * 0.30);
+      row.forEach(function(n, i) {
+        n.x = Math.round(W * (i + 1) / (row.length + 1));
+        n.y = y0;
+      });
+    } else {
+      /* causal flow left-to-right by layer; nodes within a layer stacked vertically */
+      var colGap = (W - 2 * marginX) / (numLayers - 1 || 1);
+      byLayer.forEach(function(nodesInLayer, li2) {
+        var x = Math.round(marginX + colGap * li2);
+        var n = nodesInLayer.length;
+        nodesInLayer.forEach(function(node, i) {
+          node.x = x;
+          node.y = Math.round(marginY + (H - 2 * marginY) * (i + 1) / (n + 1));
+        });
+      });
+    }
+
+    /* fan each latent's own pure indicators in a tidy row below it */
+    var indicatorsByParent = {};
+    model.nodes.forEach(function(n) {
+      var parent = indicatorOf[n.id];
+      if (parent !== undefined) (indicatorsByParent[parent] = indicatorsByParent[parent] || []).push(n);
+    });
+    Object.keys(indicatorsByParent).forEach(function(parentId) {
+      var parent = nodesById[parentId];
+      if (!parent) return;
+      var kids = indicatorsByParent[parentId];
+      var gapX = 82, gapY = 92;
+      var startX = parent.x - gapX * (kids.length - 1) / 2;
+      kids.forEach(function(k, i) {
+        k.x = Math.round(startX + gapX * i);
+        k.y = Math.round(parent.y + gapY);
+      });
+    });
+
     saveNow(); render();
   }
 
