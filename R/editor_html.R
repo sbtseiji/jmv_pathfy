@@ -529,7 +529,12 @@
   function syncVars() {
     /* Use fixed canvas dimensions — never rely on svg.clientHeight which may be
        unreliable depending on when the script runs vs. when CSS is applied. */
-    var W = Math.max(svg.getBoundingClientRect().width || 0, CANVAS_W);
+    /* Trust the measured width unless it's implausibly small (e.g. not yet
+       laid out), in which case fall back to the default canvas size. Forcing
+       a minimum of CANVAS_W regardless would overflow a genuinely narrower
+       results panel. */
+    var _measuredW = svg.getBoundingClientRect().width;
+    var W = (_measuredW && _measuredW > 100) ? _measuredW : CANVAS_W;
     var H = CANVAS_H;
 
     var obsCols = Math.max(1, Math.floor((W - 45) / 90));
@@ -562,7 +567,12 @@
      from the core layout and instead fanned in a row directly below their own
      parent latent, so factors don't get visually mixed together. */
   function autoLayout() {
-    var W = Math.max(svg.getBoundingClientRect().width || 0, CANVAS_W);
+    /* Trust the measured width unless it's implausibly small (e.g. not yet
+       laid out), in which case fall back to the default canvas size. Forcing
+       a minimum of CANVAS_W regardless would overflow a genuinely narrower
+       results panel. */
+    var _measuredW = svg.getBoundingClientRect().width;
+    var W = (_measuredW && _measuredW > 100) ? _measuredW : CANVAS_W;
     var H = CANVAS_H;
 
     var nodesById = {};
@@ -638,14 +648,24 @@
         n.y = y0;
       });
     } else {
-      /* causal flow left-to-right by layer; nodes within a layer stacked vertically */
+      /* Causal flow left-to-right by layer. Endpoint layers (sources/sinks,
+         e.g. X and Y in a mediation model) sit on a baseline; interior layers
+         (mediators) are elevated above it, so a chain like X->M->Y doesn't
+         collapse onto one flat, hard-to-read line and there's room for a
+         direct X->Y edge to pass below without crossing through M. */
       var colGap = (W - 2 * marginX) / (numLayers - 1 || 1);
+      var baselineY = Math.round(H * 0.65);
+      var elevatedY = Math.round(H * 0.30);
+      var bandHalf  = Math.round(H * 0.13);
       byLayer.forEach(function(nodesInLayer, li2) {
         var x = Math.round(marginX + colGap * li2);
+        var isInterior = numLayers >= 3 && li2 > 0 && li2 < numLayers - 1;
+        var centerY = isInterior ? elevatedY : baselineY;
         var n = nodesInLayer.length;
         nodesInLayer.forEach(function(node, i) {
           node.x = x;
-          node.y = Math.round(marginY + (H - 2 * marginY) * (i + 1) / (n + 1));
+          node.y = (n === 1) ? centerY
+                              : Math.round(centerY - bandHalf + (2 * bandHalf) * (i + 1) / (n + 1));
         });
       });
     }
