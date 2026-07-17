@@ -7,6 +7,17 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
     inherit = PathfyBase,
     private = list(
 
+        # Cache of the last successful fit, keyed on a signature that excludes
+        # cosmetic-only fields (node x/y, residualDir) so that dragging a node
+        # in the diagram does not force a full lavaan re-fit.
+        .cacheSig       = NULL,
+        .cacheFit       = NULL,
+        .cacheEstimates = NULL,
+        .cacheSafeToLabel = NULL,
+        .cacheLabelToSafe = NULL,
+        .cacheLavaanModel = NULL,
+        .cacheLatentLabels = NULL,
+
         .run = function() {
 
             vars       <- self$options$vars
@@ -81,22 +92,48 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                             missing <- "listwise"
                         std.lv    <- self$options$identification == "variance"
 
-                        fit <- tryCatch(
-                            lavaan::sem(
-                                model     = lavaanModel,
-                                data      = data,
-                                estimator = estimator,
-                                missing   = missing,
-                                std.lv    = std.lv
-                            ),
-                            error = function(e) e
+                        # Structural signature: excludes cosmetic fields (x, y, residualDir)
+                        # so dragging a node in the diagram doesn't force a lavaan re-fit.
+                        structSig <- list(
+                            nodes = lapply(spec$nodes, function(n) list(id = n$id, label = n$label, type = n$type)),
+                            edges = lapply(spec$edges, function(e) list(from = e$from, to = e$to, type = e$type, constraint = e$constraint)),
+                            estimator = estimator,
+                            missing = missing,
+                            std.lv = std.lv,
+                            ci = self$options$ci,
+                            ciWidth = self$options$ciWidth,
+                            dataSig = list(
+                                nrow = nrow(data),
+                                names = names(data),
+                                sums = vapply(data, function(col)
+                                    if (is.numeric(col)) sum(col, na.rm = TRUE) else length(unique(col)),
+                                    numeric(1))
+                            )
                         )
 
-                        if (inherits(fit, "error")) {
-                            jmvcore::reject(paste0(.("lavaan error: "), conditionMessage(fit)))
-                        } else if (!lavaan::lavInspect(fit, "converged")) {
-                            jmvcore::reject(.("Model did not converge. Check model identification."))
+                        if (!is.null(private$.cacheFit) && identical(structSig, private$.cacheSig)) {
+                            fit         <- private$.cacheFit
+                            estimates   <- private$.cacheEstimates
+                            safeToLabel <- private$.cacheSafeToLabel
+                            latentLabels <- private$.cacheLatentLabels
                         } else {
+                            fit <- tryCatch(
+                                lavaan::sem(
+                                    model     = lavaanModel,
+                                    data      = data,
+                                    estimator = estimator,
+                                    missing   = missing,
+                                    std.lv    = std.lv
+                                ),
+                                error = function(e) e
+                            )
+
+                            if (inherits(fit, "error")) {
+                                jmvcore::reject(paste0(.("lavaan error: "), conditionMessage(fit)))
+                            } else if (!lavaan::lavInspect(fit, "converged")) {
+                                jmvcore::reject(.("Model did not converge. Check model identification."))
+                            }
+
                             estimates <- lavaan::parameterEstimates(
                                 fit,
                                 standardized = TRUE,
@@ -117,34 +154,43 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                                 Filter(function(n) identical(n$type, "latent"), spec$nodes),
                                 function(n) n$label
                             )
-                            private$.renderEditor(vars, modelSpec, latentVars, estimates, canvasNote)
-                            private$.populateFit(fit)
-                            private$.populateParameters(fit, estimates, latentLabels)
-                            if (isTRUE(self$options$modIndices))
-                                private$.populateModIndices(fit, safeToLabel)
-                            if (isTRUE(self$options$residCov))
-                                private$.populateResidCov(fit, safeToLabel)
-                            if (isTRUE(self$options$showSyntax)) {
-                                header <- ""
-                                if (length(safeToLabel) > 0) {
-                                    mapping <- paste(
-                                        sapply(names(safeToLabel), function(s)
-                                            paste0("# ", s, ' = "', safeToLabel[[s]], '"')),
-                                        collapse = "\n"
-                                    )
-                                    note <- .("Non-ASCII variable names are replaced as above to prevent lavaan errors.")
-                                    header <- paste0(mapping, "\n# ", note, "\n\n")
-                                }
-                                full_text <- paste0(header, lavaanModel)
-                                escaped <- gsub("&", "&amp;", full_text, fixed = TRUE)
-                                escaped <- gsub("<", "&lt;",  escaped,   fixed = TRUE)
-                                self$results$lavaanCode$setContent(
-                                    paste0('<pre style="font-family:monospace;font-size:13px;',
-                                           'padding:8px;background:#f8f8f8;',
-                                           'border:1px solid #ddd;border-radius:4px;">',
-                                           escaped, '</pre>')
+
+                            private$.cacheSig         <- structSig
+                            private$.cacheFit         <- fit
+                            private$.cacheEstimates   <- estimates
+                            private$.cacheSafeToLabel <- safeToLabel
+                            private$.cacheLabelToSafe <- labelToSafe
+                            private$.cacheLavaanModel <- lavaanModel
+                            private$.cacheLatentLabels <- latentLabels
+                        }
+
+                        private$.renderEditor(vars, modelSpec, latentVars, estimates, canvasNote)
+                        private$.populateFit(fit)
+                        private$.populateParameters(fit, estimates, latentLabels)
+                        if (isTRUE(self$options$modIndices))
+                            private$.populateModIndices(fit, safeToLabel)
+                        if (isTRUE(self$options$residCov))
+                            private$.populateResidCov(fit, safeToLabel)
+                        if (isTRUE(self$options$showSyntax)) {
+                            header <- ""
+                            if (length(safeToLabel) > 0) {
+                                mapping <- paste(
+                                    sapply(names(safeToLabel), function(s)
+                                        paste0("# ", s, ' = "', safeToLabel[[s]], '"')),
+                                    collapse = "\n"
                                 )
+                                note <- .("Non-ASCII variable names are replaced as above to prevent lavaan errors.")
+                                header <- paste0(mapping, "\n# ", note, "\n\n")
                             }
+                            full_text <- paste0(header, lavaanModel)
+                            escaped <- gsub("&", "&amp;", full_text, fixed = TRUE)
+                            escaped <- gsub("<", "&lt;",  escaped,   fixed = TRUE)
+                            self$results$lavaanCode$setContent(
+                                paste0('<pre style="font-family:monospace;font-size:13px;',
+                                       'padding:8px;background:#f8f8f8;',
+                                       'border:1px solid #ddd;border-radius:4px;">',
+                                       escaped, '</pre>')
+                            )
                         }
                     }
                 }
