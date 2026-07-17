@@ -17,6 +17,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         .cacheLabelToSafe = NULL,
         .cacheLavaanModel = NULL,
         .cacheLatentLabels = NULL,
+        .lastRenderSig  = NULL,
 
         .run = function() {
 
@@ -115,11 +116,33 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                             )
                         )
 
+                        # Render-relevant signature: structure (no x/y/residualDir) plus the
+                        # options that affect diagram display. If a cache hit ALSO matches
+                        # this, the client's current DOM already reflects final state (it
+                        # applied the drag/reposition locally) so we can skip the round trip
+                        # entirely and avoid a redundant full HTML reload.
+                        renderSig <- list(
+                            nodes = structSig$nodes,
+                            edges = structSig$edges,
+                            vars = vars,
+                            latentVars = latentVars,
+                            std = self$options$std,
+                            showResiduals = self$options$showResiduals,
+                            canvasNote = canvasNote
+                        )
+
                         if (!is.null(private$.cacheFit) && identical(structSig, private$.cacheSig)) {
                             fit         <- private$.cacheFit
                             estimates   <- private$.cacheEstimates
                             safeToLabel <- private$.cacheSafeToLabel
                             latentLabels <- private$.cacheLatentLabels
+
+                            if (identical(renderSig, private$.lastRenderSig)) {
+                                rendered <- TRUE  # skip: client's DOM already reflects this state
+                            } else {
+                                renderNow(estimates)
+                                private$.lastRenderSig <- renderSig
+                            }
                         } else {
                             # Render before the (uncached) fit attempt, in case it errors or
                             # fails to converge, so the diagram stays up-to-date under the error banner
@@ -170,9 +193,11 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                             private$.cacheLabelToSafe <- labelToSafe
                             private$.cacheLavaanModel <- lavaanModel
                             private$.cacheLatentLabels <- latentLabels
+
+                            renderNow(estimates)
+                            private$.lastRenderSig <- renderSig
                         }
 
-                        renderNow(estimates)
                         private$.populateFit(fit)
                         private$.populateParameters(fit, estimates, latentLabels)
                         if (isTRUE(self$options$modIndices))
