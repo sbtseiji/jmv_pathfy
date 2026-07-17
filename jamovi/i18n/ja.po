@@ -76,15 +76,6 @@ msgstr "AIC"
 msgid "Auto Layout"
 msgstr "自動配置"
 
-msgid "Copy Image"
-msgstr "画像をコピー"
-
-msgid "Save As PNG..."
-msgstr "PNGとして保存..."
-
-msgid "Save As SVG..."
-msgstr "SVGとして保存..."
-
 #: Pathfy/options/fitBIC.title
 msgid "BIC"
 msgstr "BIC"
