@@ -76,6 +76,12 @@ msgstr "AIC"
 msgid "Auto Layout"
 msgstr "自動配置"
 
+msgid "Export PNG"
+msgstr "PNGを保存"
+
+msgid "Export SVG"
+msgstr "SVGを保存"
+
 #: Pathfy/options/fitBIC.title
 msgid "BIC"
 msgstr "BIC"

@@ -9,7 +9,7 @@
 #sem-editor {
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 13px;
-  min-width: 760px;
+  min-width: 620px;
 }
 
 /* ── toolbar ─────────────────────────────────────────────── */
@@ -127,6 +127,8 @@
 <div id=\"toolbar\">
   <button id=\"btnEst\" class=\"tool-btn toggle-btn\">%%LABEL_SHOW_EST%%</button>
   <span class=\"spacer\"></span>
+  <button id=\"btnExportPng\" class=\"tool-btn\">%%LABEL_EXPORT_PNG%%</button>
+  <button id=\"btnExportSvg\" class=\"tool-btn\">%%LABEL_EXPORT_SVG%%</button>
   <button id=\"btnLayout\" class=\"tool-btn\">%%LABEL_LAYOUT%%</button>
 </div>
 
@@ -230,7 +232,7 @@
 
   /* Fixed canvas dimensions matching CSS */
   var CANVAS_H = 480;
-  var CANVAS_W = 760;
+  var CANVAS_W = 620;
 
   /* Show estimates on diagram by default if available */
   var showEst = ESTIMATES.length > 0;
@@ -692,6 +694,88 @@
     saveNow(); render();
   }
 
+  /* ── export ─────────────────────────────────────────────── */
+
+  /* Minimal stylesheet covering everything the SVG relies on, embedded so
+     the exported file renders correctly outside this document. Selection
+     highlighting and edit-mode-only elements (preview lines) are dropped
+     deliberately — exports should look like a clean, final figure. */
+  var EXPORT_CSS =
+    '.node-observed rect{fill:#fff;stroke:#444;stroke-width:1.5}' +
+    '.node-latent ellipse{fill:#f0f4ff;stroke:#555;stroke-width:1.5}' +
+    '.node-label{font-size:12px;text-anchor:middle;dominant-baseline:central}' +
+    '.edge-loading{stroke:#555;stroke-width:1.5;stroke-dasharray:6,3;fill:none}' +
+    '.edge-regression{stroke:#555;stroke-width:1.5;fill:none}' +
+    '.edge-covariance{stroke:#555;stroke-width:1.5;fill:none}' +
+    '.est-lbl{font-size:10px;fill:#c62828;text-anchor:middle;dominant-baseline:central}' +
+    '.node-error circle{fill:#fff;stroke:#888;stroke-width:1}' +
+    '.error-label{font-size:10px;fill:#666;text-anchor:middle;dominant-baseline:central}' +
+    '.edge-constrained>line,.edge-constrained>path{stroke:#1565C0}' +
+    '.constraint-lbl{font-size:10px;fill:#1565C0;font-weight:bold;text-anchor:middle;dominant-baseline:central}';
+
+  function buildExportSvg() {
+    /* Clear selection/preview state so the exported figure looks final */
+    selId = null; selType = null; pending = null;
+    render();
+
+    var clone = svg.cloneNode(true);
+    clone.removeAttribute('class');
+    var w = svg.getBoundingClientRect().width || CANVAS_W;
+    var h = CANVAS_H;
+    clone.setAttribute('width', w);
+    clone.setAttribute('height', h);
+    clone.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    clone.style.background = '#ffffff';
+
+    var style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+    style.textContent = EXPORT_CSS;
+    clone.insertBefore(style, clone.firstChild);
+
+    /* white background rect so PNG export isn't transparent */
+    var bg = mkEl('rect', {x:0,y:0,width:w,height:h,fill:'#ffffff'});
+    clone.insertBefore(bg, clone.firstChild.nextSibling);
+
+    return {svg: clone, width: w, height: h};
+  }
+
+  function downloadBlob(blob, filename) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function exportSvg() {
+    var built = buildExportSvg();
+    var xml = new XMLSerializer().serializeToString(built.svg);
+    var blob = new Blob([xml], {type: 'image/svg+xml'});
+    downloadBlob(blob, 'path-diagram.svg');
+  }
+
+  function exportPng() {
+    var built = buildExportSvg();
+    var xml = new XMLSerializer().serializeToString(built.svg);
+    var svgBlob = new Blob([xml], {type: 'image/svg+xml'});
+    var url = URL.createObjectURL(svgBlob);
+    var img = new Image();
+    img.onload = function() {
+      var scale = 2; /* render at 2x for a crisper PNG */
+      var canvasEl = document.createElement('canvas');
+      canvasEl.width = built.width * scale;
+      canvasEl.height = built.height * scale;
+      var ctx = canvasEl.getContext('2d');
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0, built.width, built.height);
+      URL.revokeObjectURL(url);
+      canvasEl.toBlob(function(pngBlob) {
+        downloadBlob(pngBlob, 'path-diagram.png');
+      }, 'image/png');
+    };
+    img.onerror = function() { URL.revokeObjectURL(url); };
+    img.src = url;
+  }
+
   /* ── edge helpers ───────────────────────────────────────── */
 
   function autoEdgeType(fn,tn) {
@@ -926,6 +1010,8 @@
   /* ── toolbar ────────────────────────────────────────────── */
 
   document.getElementById('btnLayout').addEventListener('click', autoLayout);
+  document.getElementById('btnExportPng').addEventListener('click', exportPng);
+  document.getElementById('btnExportSvg').addEventListener('click', exportSvg);
 
   btnEst.addEventListener('click', function() {
     showEst = !showEst;

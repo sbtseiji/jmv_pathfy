@@ -53,6 +53,12 @@ msgstr ""
 msgid "Auto Layout"
 msgstr ""
 
+msgid "Export PNG"
+msgstr ""
+
+msgid "Export SVG"
+msgstr ""
+
 #: Pathfy/options/fitBIC.title
 msgid "BIC"
 msgstr ""
