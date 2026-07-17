@@ -9,6 +9,7 @@
 #sem-editor {
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 13px;
+  min-width: 760px;
 }
 
 /* ── toolbar ─────────────────────────────────────────────── */
@@ -229,7 +230,7 @@
 
   /* Fixed canvas dimensions matching CSS */
   var CANVAS_H = 480;
-  var CANVAS_W = 560;
+  var CANVAS_W = 760;
 
   /* Show estimates on diagram by default if available */
   var showEst = ESTIMATES.length > 0;
