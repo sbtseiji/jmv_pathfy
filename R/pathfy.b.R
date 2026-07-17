@@ -7,18 +7,6 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
     inherit = PathfyBase,
     private = list(
 
-        # Cache of the last successful fit, keyed on a signature that excludes
-        # cosmetic-only fields (node x/y, residualDir) so that dragging a node
-        # in the diagram does not force a full lavaan re-fit.
-        .cacheSig       = NULL,
-        .cacheFit       = NULL,
-        .cacheEstimates = NULL,
-        .cacheSafeToLabel = NULL,
-        .cacheLabelToSafe = NULL,
-        .cacheLavaanModel = NULL,
-        .cacheLatentLabels = NULL,
-        .lastRenderSig  = NULL,
-
         .run = function() {
 
             vars       <- self$options$vars
@@ -116,33 +104,18 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                             )
                         )
 
-                        # Render-relevant signature: structure (no x/y/residualDir) plus the
-                        # options that affect diagram display. If a cache hit ALSO matches
-                        # this, the client's current DOM already reflects final state (it
-                        # applied the drag/reposition locally) so we can skip the round trip
-                        # entirely and avoid a redundant full HTML reload.
-                        renderSig <- list(
-                            nodes = structSig$nodes,
-                            edges = structSig$edges,
-                            vars = vars,
-                            latentVars = latentVars,
-                            std = self$options$std,
-                            showResiduals = self$options$showResiduals,
-                            canvasNote = canvasNote
-                        )
+                        # Cache lives in the diagram result's state, which jmvcore persists
+                        # across .run() calls (unlike R6 private fields, which do NOT survive
+                        # between runs — jamovi creates a fresh instance each time).
+                        cache <- self$results$diagram$state
+                        cacheHit <- !is.null(cache) && identical(structSig, cache$structSig)
 
-                        if (!is.null(private$.cacheFit) && identical(structSig, private$.cacheSig)) {
-                            fit         <- private$.cacheFit
-                            estimates   <- private$.cacheEstimates
-                            safeToLabel <- private$.cacheSafeToLabel
-                            latentLabels <- private$.cacheLatentLabels
-
-                            if (identical(renderSig, private$.lastRenderSig)) {
-                                rendered <- TRUE  # skip: client's DOM already reflects this state
-                            } else {
-                                renderNow(estimates)
-                                private$.lastRenderSig <- renderSig
-                            }
+                        if (cacheHit) {
+                            fit         <- cache$fit
+                            estimates   <- cache$estimates
+                            safeToLabel <- cache$safeToLabel
+                            latentLabels <- cache$latentLabels
+                            renderNow(estimates)
                         } else {
                             # Render before the (uncached) fit attempt, in case it errors or
                             # fails to converge, so the diagram stays up-to-date under the error banner
@@ -186,16 +159,17 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                                 function(n) n$label
                             )
 
-                            private$.cacheSig         <- structSig
-                            private$.cacheFit         <- fit
-                            private$.cacheEstimates   <- estimates
-                            private$.cacheSafeToLabel <- safeToLabel
-                            private$.cacheLabelToSafe <- labelToSafe
-                            private$.cacheLavaanModel <- lavaanModel
-                            private$.cacheLatentLabels <- latentLabels
-
                             renderNow(estimates)
-                            private$.lastRenderSig <- renderSig
+
+                            self$results$diagram$setState(list(
+                                structSig    = structSig,
+                                fit          = fit,
+                                estimates    = estimates,
+                                safeToLabel  = safeToLabel,
+                                labelToSafe  = labelToSafe,
+                                lavaanModel  = lavaanModel,
+                                latentLabels = latentLabels
+                            ))
                         }
 
                         private$.populateFit(fit)
