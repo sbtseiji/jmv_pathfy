@@ -33,9 +33,11 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 .("Missing data: Listwise deletion (Full Information ML is not available with this estimator)")
             else ""
 
-            # Render editor immediately so the diagram is always up-to-date,
-            # even when a reject() below interrupts the rest of .run()
-            private$.renderEditor(vars, modelSpec, latentVars, estimates, canvasNote)
+            rendered <- FALSE
+            renderNow <- function(est) {
+                private$.renderEditor(vars, modelSpec, latentVars, est, canvasNote)
+                rendered <<- TRUE
+            }
 
             if (length(vars) > 0) {
                 spec <- tryCatch(
@@ -58,6 +60,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                             hasLoading   <- any(sapply(spec$edges, function(e) e$type == "loading" && (e$from == lid || e$to == lid)))
                             usedInPath   <- any(sapply(spec$edges, function(e) e$type != "loading" && (e$from == lid || e$to == lid)))
                             if (!hasLoading && usedInPath) {
+                                renderNow(NULL)
                                 jmvcore::reject(sprintf(
                                     .("Latent variable '%s' has no indicators. Add at least one loading before using it in a path."),
                                     lNode$label
@@ -78,6 +81,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                         for (oNode in obsNodes) {
                             col <- if (!is.null(labelToSafe[[oNode$label]])) labelToSafe[[oNode$label]] else oNode$label
                             if (col %in% names(data) && is.factor(data[[col]])) {
+                                renderNow(NULL)
                                 jmvcore::reject(sprintf(
                                     .("Only continuous (numeric) variables can be used. '%s' is a categorical variable."),
                                     oNode$label
@@ -117,6 +121,10 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                             safeToLabel <- private$.cacheSafeToLabel
                             latentLabels <- private$.cacheLatentLabels
                         } else {
+                            # Render before the (uncached) fit attempt, in case it errors or
+                            # fails to converge, so the diagram stays up-to-date under the error banner
+                            renderNow(NULL)
+
                             fit <- tryCatch(
                                 lavaan::sem(
                                     model     = lavaanModel,
@@ -164,7 +172,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                             private$.cacheLatentLabels <- latentLabels
                         }
 
-                        private$.renderEditor(vars, modelSpec, latentVars, estimates, canvasNote)
+                        renderNow(estimates)
                         private$.populateFit(fit)
                         private$.populateParameters(fit, estimates, latentLabels)
                         if (isTRUE(self$options$modIndices))
@@ -196,6 +204,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 }
             }
 
+            if (!rendered) renderNow(NULL)
         },
 
         # JSON model spec → lavaan syntax (delegates to standalone spec_to_lavaan())
