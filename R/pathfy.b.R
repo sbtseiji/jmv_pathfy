@@ -428,12 +428,13 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             # Toolbar labels
             html <- gsub("%%LABEL_LAYOUT%%",        .("Auto Layout"),                        html, fixed = TRUE)
             html <- gsub("%%LABEL_SHOW_EST%%",      .("Estimates"),                          html, fixed = TRUE)
-            html <- gsub("%%LABEL_EXPORT_PNG%%",    .("Export PNG"),                         html, fixed = TRUE)
-            html <- gsub("%%LABEL_EXPORT_SVG%%",    .("Export SVG"),                         html, fixed = TRUE)
             html <- gsub("%%LABEL_HINT_RIGHTCLICK%%", .("Right-click a node to add paths"), html, fixed = TRUE)
 
             # Right-click menu labels (node and error node)
             html <- gsub("%%LABEL_FIX_VALUE%%",         .("Fix value..."),      html, fixed = TRUE)
+            html <- gsub("%%LABEL_COPY_IMAGE%%",    .("Copy Image"),    html, fixed = TRUE)
+            html <- gsub("%%LABEL_SAVE_AS_PNG%%",   .("Save As PNG..."), html, fixed = TRUE)
+            html <- gsub("%%LABEL_SAVE_AS_SVG%%",   .("Save As SVG..."), html, fixed = TRUE)
             html <- gsub("%%LABEL_FIX_PARAM_TITLE%%",   .("Fix parameter"),     html, fixed = TRUE)
             html <- gsub("%%LABEL_FIX_PARAM_ERR%%",     .("Enter a number."),   html, fixed = TRUE)
             html <- gsub("%%LABEL_REMOVE_CONSTRAINT%%",  .("Remove constraint"), html, fixed = TRUE)

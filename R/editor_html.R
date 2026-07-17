@@ -127,8 +127,6 @@
 <div id=\"toolbar\">
   <button id=\"btnEst\" class=\"tool-btn toggle-btn\">%%LABEL_SHOW_EST%%</button>
   <span class=\"spacer\"></span>
-  <button id=\"btnExportPng\" class=\"tool-btn\">%%LABEL_EXPORT_PNG%%</button>
-  <button id=\"btnExportSvg\" class=\"tool-btn\">%%LABEL_EXPORT_SVG%%</button>
   <button id=\"btnLayout\" class=\"tool-btn\">%%LABEL_LAYOUT%%</button>
 </div>
 
@@ -176,6 +174,13 @@
   <div class=\"ctx-item\" data-action=\"errPosRight\">%%LABEL_ERR_RIGHT%%</div>
   <div class=\"ctx-sep\"></div>
   <div class=\"ctx-item\" data-action=\"errCov\">%%LABEL_ADD_COVARIANCE%%</div>
+</div>
+
+<!-- ── context menu: canvas background (export) ────────────────── -->
+<div id=\"ctxCanvas\" class=\"ctx-menu hidden\">
+  <div class=\"ctx-item\" data-action=\"copyImage\">%%LABEL_COPY_IMAGE%%</div>
+  <div class=\"ctx-item\" data-action=\"saveAsPng\">%%LABEL_SAVE_AS_PNG%%</div>
+  <div class=\"ctx-item\" data-action=\"saveAsSvg\">%%LABEL_SAVE_AS_SVG%%</div>
 </div>
 
 <!-- ── rename modal ────────────────────────────────────────── -->
@@ -248,6 +253,7 @@
   var ctxNode          = document.getElementById('ctxNode');
   var ctxEdge          = document.getElementById('ctxEdge');
   var ctxError         = document.getElementById('ctxError');
+  var ctxCanvas        = document.getElementById('ctxCanvas');
   var renameModal      = document.getElementById('renameModal');
   var renameInput      = document.getElementById('renameInput');
   var constraintPopup  = document.getElementById('constraintPopup');
@@ -753,7 +759,7 @@
     downloadBlob(blob, 'path-diagram.svg');
   }
 
-  function exportPng() {
+  function svgToPngBlob(callback) {
     var built = buildExportSvg();
     var xml = new XMLSerializer().serializeToString(built.svg);
     var svgBlob = new Blob([xml], {type: 'image/svg+xml'});
@@ -768,12 +774,23 @@
       ctx.scale(scale, scale);
       ctx.drawImage(img, 0, 0, built.width, built.height);
       URL.revokeObjectURL(url);
-      canvasEl.toBlob(function(pngBlob) {
-        downloadBlob(pngBlob, 'path-diagram.png');
-      }, 'image/png');
+      canvasEl.toBlob(function(pngBlob) { callback(pngBlob); }, 'image/png');
     };
-    img.onerror = function() { URL.revokeObjectURL(url); };
+    img.onerror = function() { URL.revokeObjectURL(url); callback(null); };
     img.src = url;
+  }
+
+  function exportPng() {
+    svgToPngBlob(function(pngBlob) {
+      if (pngBlob) downloadBlob(pngBlob, 'path-diagram.png');
+    });
+  }
+
+  function copyImage() {
+    svgToPngBlob(function(pngBlob) {
+      if (!pngBlob || !navigator.clipboard || !window.ClipboardItem) return;
+      navigator.clipboard.write([new ClipboardItem({'image/png': pngBlob})]).catch(function(){});
+    });
   }
 
   /* ── edge helpers ───────────────────────────────────────── */
@@ -907,11 +924,17 @@
     ctxNode.classList.add('hidden');ctxEdge.classList.add('hidden');render();
   });
 
-  svg.addEventListener('contextmenu', function(evt){evt.preventDefault();});
+  svg.addEventListener('contextmenu', function(evt) {
+    evt.preventDefault();
+    ctxCanvas.style.left = evt.clientX+'px'; ctxCanvas.style.top = evt.clientY+'px';
+    ctxCanvas.classList.remove('hidden');
+    ctxNode.classList.add('hidden'); ctxEdge.classList.add('hidden'); ctxError.classList.add('hidden');
+  });
 
   document.addEventListener('click', function(){
     ctxNode.classList.add('hidden'); ctxEdge.classList.add('hidden');
-    ctxError.classList.add('hidden'); constraintPopup.classList.add('hidden');
+    ctxError.classList.add('hidden'); ctxCanvas.classList.add('hidden');
+    constraintPopup.classList.add('hidden');
   });
 
   document.addEventListener('keydown', function(evt) {
@@ -920,7 +943,8 @@
     if (evt.key==='Escape') {
       pending=null; svg.classList.remove('pending');
       ctxNode.classList.add('hidden'); ctxEdge.classList.add('hidden');
-      ctxError.classList.add('hidden'); constraintPopup.classList.add('hidden'); render();
+      ctxError.classList.add('hidden'); ctxCanvas.classList.add('hidden');
+      constraintPopup.classList.add('hidden'); render();
     } else if ((evt.key==='Delete'||evt.key==='Backspace')&&selId) {
       deleteItem(selId,selType);
     }
@@ -1007,11 +1031,18 @@
     }
   });
 
+  ctxCanvas.addEventListener('click', function(evt) {
+    evt.stopPropagation();
+    var action=evt.target.getAttribute('data-action');
+    ctxCanvas.classList.add('hidden');
+    if (action==='copyImage') copyImage();
+    else if (action==='saveAsPng') exportPng();
+    else if (action==='saveAsSvg') exportSvg();
+  });
+
   /* ── toolbar ────────────────────────────────────────────── */
 
   document.getElementById('btnLayout').addEventListener('click', autoLayout);
-  document.getElementById('btnExportPng').addEventListener('click', exportPng);
-  document.getElementById('btnExportSvg').addEventListener('click', exportSvg);
 
   btnEst.addEventListener('click', function() {
     showEst = !showEst;
