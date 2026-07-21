@@ -122,11 +122,8 @@ msgid "Modification Indices"
 msgstr "修正指数"
 
 #: Pathfy/options/residCov.title
-msgid "Residual covariances"
-msgstr "相関行列の残差"
-
 #: Pathfy/results/residCov.title
-msgid "Residual Covariances"
+msgid "Residuals for Observed Correlation Matrix"
 msgstr "相関行列の残差"
 
 #: R/semgui.b.R

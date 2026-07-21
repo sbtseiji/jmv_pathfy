@@ -100,10 +100,7 @@
             "Modification Indices": [
                 "修正指数"
             ],
-            "Residual covariances": [
-                "相関行列の残差"
-            ],
-            "Residual Covariances": [
+            "Residuals for Observed Correlation Matrix": [
                 "相関行列の残差"
             ],
             "Cancel": [
