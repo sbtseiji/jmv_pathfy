@@ -187,7 +187,7 @@ msgid "Latent variable '%s' has no indicators. Add at least one loading before u
 msgstr ""
 
 #: R/semgui.b.R
-msgid "lavaan error: "
+msgid "lavaan error: {message}"
 msgstr ""
 
 #: Pathfy/results/lavaanCode.title
@@ -246,10 +246,7 @@ msgstr ""
 msgid "Right-click a node to add paths"
 msgstr ""
 
-msgid "Invalid constraint value: '"
-msgstr ""
-
-msgid "' — must be a number."
+msgid "Invalid constraint value: '{value}' — must be a number."
 msgstr ""
 
 #: Pathfy/results/modelFit.title
@@ -312,6 +309,9 @@ msgstr ""
 
 #: R/semgui.b.R
 msgid "RMSEA 90%CI upper"
+msgstr ""
+
+msgid "{width}% CI"
 msgstr ""
 
 #: Pathfy/results/parameters.columns.title

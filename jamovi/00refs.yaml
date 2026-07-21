@@ -10,3 +10,17 @@
   issue: 2
   pages: 1--36
   url: https://doi.org/10.18637/jss.v048.i02
+
+- name: lavaanPkg
+  type: misc
+  author:
+    - family: Rosseel
+      given: Y.
+    - family: Jorgensen
+      given: T. D.
+    - family: Rockwood
+      given: N.
+  year: 2025
+  title: "lavaan: Latent Variable Analysis"
+  note: R package
+  url: https://CRAN.R-project.org/package=lavaan

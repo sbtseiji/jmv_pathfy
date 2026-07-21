@@ -18,12 +18,14 @@ items:
           type: Table
           rows: 1
           visible: (fitChiSq)
+          refs: [lavaan, lavaanPkg]
           clearWith:
             - vars
             - modelSpec
             - estimator
             - missing
             - identification
+            - latentVars
           columns:
             - name: chi
               title: χ²
@@ -42,12 +44,14 @@ items:
           type: Table
           rows: 1
           visible: (fitCFI || fitTLI || fitSRMR || fitRMSEA || fitAIC || fitBIC)
+          refs: [lavaan, lavaanPkg]
           clearWith:
             - vars
             - modelSpec
             - estimator
             - missing
             - identification
+            - latentVars
           columns:
             - name: cfi
               title: CFI
@@ -88,6 +92,7 @@ items:
       title: Parameter Estimates
       type: Table
       visible: (showParamTable)
+      refs: [lavaan, lavaanPkg]
       rows: 0
       clearWith:
         - vars
@@ -95,6 +100,7 @@ items:
         - estimator
         - missing
         - identification
+        - latentVars
         - std
         - ci
         - ciWidth
@@ -160,6 +166,7 @@ items:
         - estimator
         - missing
         - identification
+        - latentVars
         - modIndicesThreshold
       columns:
         - name: lhs
@@ -191,6 +198,7 @@ items:
         - estimator
         - missing
         - identification
+        - latentVars
         - residCovThreshold
       columns:
         - name: var

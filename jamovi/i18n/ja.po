@@ -122,6 +122,9 @@ msgid "Modification Indices"
 msgstr "修正指数"
 
 #: Pathfy/options/residCov.title
+msgid "Residuals for observed correlation matrix"
+msgstr "相関行列の残差"
+
 #: Pathfy/results/residCov.title
 msgid "Residuals for Observed Correlation Matrix"
 msgstr "相関行列の残差"
@@ -253,18 +256,15 @@ msgstr "欠損値処理: 行全体を除外（この推定法では完全情報�
 msgid "Right-click a node to add paths"
 msgstr "ノードを右クリックしてパスを追加"
 
-msgid "Invalid constraint value: '"
-msgstr "無効な制約値: '"
-
-msgid "' — must be a number."
-msgstr "'は数値でなければなりません。"
+msgid "Invalid constraint value: '{value}' — must be a number."
+msgstr "無効な制約値: 「{value}」は数値でなければなりません。"
 
 msgid "Latent variable '%s' has no indicators. Add at least one loading before using it in a path."
 msgstr "潜在変数「%s」に指標変数がありません。パスに使用する前に、因子負荷を少なくとも1つ追加してください。"
 
 #: R/semgui.b.R
-msgid "lavaan error: "
-msgstr "lavaanエラー: "
+msgid "lavaan error: {message}"
+msgstr "lavaanエラー: {message}"
 
 #: Pathfy/results/lavaanCode.title
 msgid "lavaan Model Syntax"
@@ -281,6 +281,9 @@ msgstr "行全体を除外"
 #: Pathfy/results/parameters.columns.superTitle
 msgid "95% CI"
 msgstr "95% CI"
+
+msgid "{width}% CI"
+msgstr "{width}% CI"
 
 #: Pathfy/results/parameters.columns.title
 msgid "Lower (95%CI)"

@@ -275,12 +275,16 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                             title="Fit Tests",
                             rows=1,
                             visible="(fitChiSq)",
+                            refs=list(
+                                "lavaan",
+                                "lavaanPkg"),
                             clearWith=list(
                                 "vars",
                                 "modelSpec",
                                 "estimator",
                                 "missing",
-                                "identification"),
+                                "identification",
+                                "latentVars"),
                             columns=list(
                                 list(
                                     `name`="chi", 
@@ -302,12 +306,16 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                             title="Fit Indices",
                             rows=1,
                             visible="(fitCFI || fitTLI || fitSRMR || fitRMSEA || fitAIC || fitBIC)",
+                            refs=list(
+                                "lavaan",
+                                "lavaanPkg"),
                             clearWith=list(
                                 "vars",
                                 "modelSpec",
                                 "estimator",
                                 "missing",
-                                "identification"),
+                                "identification",
+                                "latentVars"),
                             columns=list(
                                 list(
                                     `name`="cfi", 
@@ -356,6 +364,9 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 name="parameters",
                 title="Parameter Estimates",
                 visible="(showParamTable)",
+                refs=list(
+                    "lavaan",
+                    "lavaanPkg"),
                 rows=0,
                 clearWith=list(
                     "vars",
@@ -363,6 +374,7 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "estimator",
                     "missing",
                     "identification",
+                    "latentVars",
                     "std",
                     "ci",
                     "ciWidth",
@@ -439,6 +451,7 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "estimator",
                     "missing",
                     "identification",
+                    "latentVars",
                     "modIndicesThreshold"),
                 columns=list(
                     list(
@@ -475,6 +488,7 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "estimator",
                     "missing",
                     "identification",
+                    "latentVars",
                     "residCovThreshold"),
                 columns=list(
                     list(

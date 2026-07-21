@@ -7,6 +7,23 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
     inherit = PathfyBase,
     private = list(
 
+        # Give the residual correlation matrix its correct shape immediately,
+        # before any fitting happens, so the table doesn't appear empty and
+        # then visibly restructure once .run() completes.
+        .init = function() {
+            if (!isTRUE(self$options$residCov)) return()
+            spec <- tryCatch(
+                jsonlite::fromJSON(self$options$modelSpec, simplifyVector = FALSE),
+                error = function(e) NULL
+            )
+            if (is.null(spec) || length(spec$nodes) == 0) return()
+            obsVars <- sapply(Filter(function(n) identical(n$type, "observed"), spec$nodes), function(n) n$label)
+            if (length(obsVars) == 0) return()
+            tbl <- self$results$residCov
+            for (v in obsVars)
+                tbl$addColumn(name = v, title = v, type = "number", format = "zto")
+        },
+
         .run = function() {
 
             vars       <- self$options$vars
@@ -42,21 +59,6 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                         safeToLabel <- lavaanResult$safeToLabel
                         labelToSafe <- lavaanResult$labelToSafe
 
-                        # Validate: latent variables used in paths must have loadings
-                        latentNodes <- Filter(function(n) identical(n$type, "latent"), spec$nodes)
-                        for (lNode in latentNodes) {
-                            lid <- lNode$id
-                            hasLoading   <- any(sapply(spec$edges, function(e) e$type == "loading" && (e$from == lid || e$to == lid)))
-                            usedInPath   <- any(sapply(spec$edges, function(e) e$type != "loading" && (e$from == lid || e$to == lid)))
-                            if (!hasLoading && usedInPath) {
-                                renderNow(NULL)
-                                jmvcore::reject(sprintf(
-                                    .("Latent variable '%s' has no indicators. Add at least one loading before using it in a path."),
-                                    lNode$label
-                                ))
-                            }
-                        }
-
                         data <- self$data
                         # Rename non-ASCII observed variable columns to safe proxy names
                         if (length(labelToSafe) > 0) {
@@ -65,17 +67,10 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                                 names(data)[match(obsRename, names(data))] <- unlist(labelToSafe[obsRename])
                         }
 
-                        # Check for factor variables (only continuous/numeric is supported)
-                        obsNodes <- Filter(function(n) identical(n$type, "observed"), spec$nodes)
-                        for (oNode in obsNodes) {
-                            col <- if (!is.null(labelToSafe[[oNode$label]])) labelToSafe[[oNode$label]] else oNode$label
-                            if (col %in% names(data) && is.factor(data[[col]])) {
-                                renderNow(NULL)
-                                jmvcore::reject(sprintf(
-                                    .("Only continuous (numeric) variables can be used. '%s' is a categorical variable."),
-                                    oNode$label
-                                ))
-                            }
+                        errMsg <- private$.validateSpec(spec, data, labelToSafe)
+                        if (!is.null(errMsg)) {
+                            renderNow(NULL)
+                            jmvcore::reject(errMsg)
                         }
 
                         estimator <- toupper(self$options$estimator)
@@ -85,23 +80,9 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                             missing <- "listwise"
                         std.lv    <- self$options$identification == "variance"
 
-                        # Structural signature: excludes cosmetic fields (x, y, residualDir)
-                        # so dragging a node in the diagram doesn't force a lavaan re-fit.
-                        structSig <- list(
-                            nodes = lapply(spec$nodes, function(n) list(id = n$id, label = n$label, type = n$type)),
-                            edges = lapply(spec$edges, function(e) list(from = e$from, to = e$to, type = e$type, constraint = e$constraint)),
-                            estimator = estimator,
-                            missing = missing,
-                            std.lv = std.lv,
-                            ci = self$options$ci,
-                            ciWidth = self$options$ciWidth,
-                            dataSig = list(
-                                nrow = nrow(data),
-                                names = names(data),
-                                sums = vapply(data, function(col)
-                                    if (is.numeric(col)) sum(col, na.rm = TRUE) else length(unique(col)),
-                                    numeric(1))
-                            )
+                        structSig <- private$.buildStructSig(
+                            spec, data, estimator, missing, std.lv,
+                            self$options$ci, self$options$ciWidth
                         )
 
                         # Cache lives in the diagram result's state, which jmvcore persists
@@ -114,7 +95,6 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                             fit         <- cache$fit
                             estimates   <- cache$estimates
                             safeToLabel <- cache$safeToLabel
-                            latentLabels <- cache$latentLabels
                             renderNow(estimates)
                         } else {
                             # Render before the (uncached) fit attempt, in case it errors or
@@ -133,7 +113,8 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                             )
 
                             if (inherits(fit, "error")) {
-                                jmvcore::reject(paste0(.("lavaan error: "), conditionMessage(fit)))
+                                jmvcore::reject(jmvcore::format(
+                                    .("lavaan error: {message}"), message = conditionMessage(fit)))
                             } else if (!lavaan::lavInspect(fit, "converged")) {
                                 jmvcore::reject(.("Model did not converge. Check model identification."))
                             }
@@ -154,11 +135,6 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                                 estimates$lhs <- mapBack(estimates$lhs)
                                 estimates$rhs <- mapBack(estimates$rhs)
                             }
-                            latentLabels <- sapply(
-                                Filter(function(n) identical(n$type, "latent"), spec$nodes),
-                                function(n) n$label
-                            )
-
                             renderNow(estimates)
 
                             self$results$diagram$setState(list(
@@ -167,38 +143,18 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                                 estimates    = estimates,
                                 safeToLabel  = safeToLabel,
                                 labelToSafe  = labelToSafe,
-                                lavaanModel  = lavaanModel,
-                                latentLabels = latentLabels
+                                lavaanModel  = lavaanModel
                             ))
                         }
 
                         private$.populateFit(fit)
-                        private$.populateParameters(fit, estimates, latentLabels)
+                        private$.populateParameters(fit, estimates)
                         if (isTRUE(self$options$modIndices))
                             private$.populateModIndices(fit, safeToLabel)
                         if (isTRUE(self$options$residCov))
                             private$.populateResidCov(fit, safeToLabel)
-                        if (isTRUE(self$options$showSyntax)) {
-                            header <- ""
-                            if (length(safeToLabel) > 0) {
-                                mapping <- paste(
-                                    sapply(names(safeToLabel), function(s)
-                                        paste0("# ", s, ' = "', safeToLabel[[s]], '"')),
-                                    collapse = "\n"
-                                )
-                                note <- .("Non-ASCII variable names are replaced as above to prevent lavaan errors.")
-                                header <- paste0(mapping, "\n# ", note, "\n\n")
-                            }
-                            full_text <- paste0(header, lavaanModel)
-                            escaped <- gsub("&", "&amp;", full_text, fixed = TRUE)
-                            escaped <- gsub("<", "&lt;",  escaped,   fixed = TRUE)
-                            self$results$lavaanCode$setContent(
-                                paste0('<pre style="font-family:monospace;font-size:13px;',
-                                       'padding:8px;background:#f8f8f8;',
-                                       'border:1px solid #ddd;border-radius:4px;">',
-                                       escaped, '</pre>')
-                            )
-                        }
+                        if (isTRUE(self$options$showSyntax))
+                            private$.populateSyntax(lavaanModel, safeToLabel)
                     }
                 }
             }
@@ -209,6 +165,89 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         # JSON model spec → lavaan syntax (delegates to standalone spec_to_lavaan())
         .specToLavaan = function(spec) {
             spec_to_lavaan(spec)
+        },
+
+        # Validation checks on the parsed model spec; returns an error message
+        # string if invalid, or NULL if OK. Caller is responsible for rendering
+        # the diagram before calling jmvcore::reject() with the message.
+        .validateSpec = function(spec, data, labelToSafe) {
+            # Latent variables used in a path must have at least one loading
+            latentNodes <- Filter(function(n) identical(n$type, "latent"), spec$nodes)
+            for (lNode in latentNodes) {
+                lid <- lNode$id
+                hasLoading <- any(sapply(spec$edges, function(e) e$type == "loading" && (e$from == lid || e$to == lid)))
+                usedInPath <- any(sapply(spec$edges, function(e) e$type != "loading" && (e$from == lid || e$to == lid)))
+                if (!hasLoading && usedInPath) {
+                    return(sprintf(
+                        .("Latent variable '%s' has no indicators. Add at least one loading before using it in a path."),
+                        lNode$label
+                    ))
+                }
+            }
+
+            # Only continuous (numeric) observed variables are supported
+            obsNodes <- Filter(function(n) identical(n$type, "observed"), spec$nodes)
+            for (oNode in obsNodes) {
+                col <- if (!is.null(labelToSafe[[oNode$label]])) labelToSafe[[oNode$label]] else oNode$label
+                if (col %in% names(data) && is.factor(data[[col]])) {
+                    return(sprintf(
+                        .("Only continuous (numeric) variables can be used. '%s' is a categorical variable."),
+                        oNode$label
+                    ))
+                }
+            }
+
+            NULL
+        },
+
+        # Structural signature: excludes cosmetic fields (x, y, residualDir) so
+        # dragging a node in the diagram doesn't force a lavaan re-fit, and
+        # fingerprints the data so real edits still invalidate the cache.
+        .buildStructSig = function(spec, data, estimator, missing, std.lv, ci, ciWidth) {
+            list(
+                nodes = lapply(spec$nodes, function(n) list(id = n$id, label = n$label, type = n$type)),
+                edges = lapply(spec$edges, function(e) list(from = e$from, to = e$to, type = e$type, constraint = e$constraint)),
+                estimator = estimator,
+                missing = missing,
+                std.lv = std.lv,
+                ci = ci,
+                ciWidth = ciWidth,
+                # Sum + sum-of-squares + missing count makes compensating edits
+                # (e.g. swapping two cells) very unlikely to leave the signature
+                # unchanged, unlike a bare sum.
+                dataSig = list(
+                    nrow = nrow(data),
+                    names = names(data),
+                    sums = vapply(data, function(col)
+                        if (is.numeric(col))
+                            sum(col, na.rm = TRUE) + sum(col^2, na.rm = TRUE) * 31 + sum(is.na(col))
+                        else length(unique(col)),
+                        numeric(1))
+                )
+            )
+        },
+
+        # lavaan model syntax display (with non-ASCII proxy-name mapping header)
+        .populateSyntax = function(lavaanModel, safeToLabel) {
+            header <- ""
+            if (length(safeToLabel) > 0) {
+                mapping <- paste(
+                    sapply(names(safeToLabel), function(s)
+                        paste0("# ", s, ' = "', safeToLabel[[s]], '"')),
+                    collapse = "\n"
+                )
+                note <- .("Non-ASCII variable names are replaced as above to prevent lavaan errors.")
+                header <- paste0(mapping, "\n# ", note, "\n\n")
+            }
+            full_text <- paste0(header, lavaanModel)
+            escaped <- gsub("&", "&amp;", full_text, fixed = TRUE)
+            escaped <- gsub("<", "&lt;",  escaped,   fixed = TRUE)
+            self$results$lavaanCode$setContent(
+                paste0('<pre style="font-family:monospace;font-size:13px;',
+                       'padding:8px;background:#f8f8f8;',
+                       'border:1px solid #ddd;border-radius:4px;">',
+                       escaped, '</pre>')
+            )
         },
 
         # Model fit tables (CFA-style: separate test and fit measures tables)
@@ -240,21 +279,11 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         },
 
         # Parameter estimates table
-        .populateParameters = function(fit, pe = NULL, latentLabels = character(0)) {
+        .populateParameters = function(fit, pe) {
             opts <- self$options
-            if (is.null(pe)) {
-                pe <- lavaan::parameterEstimates(
-                    fit,
-                    standardized = opts$std,
-                    ci           = opts$ci,
-                    level        = opts$ciWidth / 100
-                )
-            }
-
-            lat_names <- lavaan::lavNames(fit, type = "lv")
             tbl <- self$results$parameters
             if (isTRUE(opts$ci)) {
-                ciLabel <- paste0(opts$ciWidth, "% CI")
+                ciLabel <- jmvcore::format(.("{width}% CI"), width = opts$ciWidth)
                 tbl$getColumn("ciLower")$setSuperTitle(ciLabel)
                 tbl$getColumn("ciUpper")$setSuperTitle(ciLabel)
             }
@@ -392,6 +421,19 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 s <- gsub(">", "\\u003e", s, fixed = TRUE)
                 s
             }
+            # Escape &, <, > for text landing directly in HTML (not inside <script>)
+            htmlEscape <- function(s) {
+                s <- gsub("&", "&amp;", s, fixed = TRUE)
+                s <- gsub("<", "&lt;",  s, fixed = TRUE)
+                s <- gsub(">", "&gt;",  s, fixed = TRUE)
+                s
+            }
+            # Encode a single string as a properly escaped JS string literal,
+            # for substitution into expression position inside a <script> block.
+            # Using JSON encoding (rather than trusting the caller not to use a
+            # quote/backslash) is what makes this safe for translated strings
+            # and user-supplied data alike.
+            jsString <- function(s) jsEscape(as.character(jsonlite::toJSON(s, auto_unbox = TRUE)))
 
             varsJson <- jsEscape(jsonlite::toJSON(as.character(vars), auto_unbox = FALSE))
 
@@ -419,39 +461,39 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
 
             html <- .EDITOR_HTML
             html <- gsub("%%VARS%%",            varsJson,             html, fixed = TRUE)
-            html <- gsub("%%MODEL_SPEC%%",       jsEscape(modelSpec),  html, fixed = TRUE)
+            html <- gsub("%%MODEL_SPEC%%",       jsString(modelSpec),  html, fixed = TRUE)
             html <- gsub("%%LATENT_VARS%%",      latentJson,           html, fixed = TRUE)
             html <- gsub("%%PARAM_ESTIMATES%%",  estimatesJson,        html, fixed = TRUE)
             html <- gsub("%%SHOW_STD%%",         showStd,       html, fixed = TRUE)
             html <- gsub("%%HIDE_RESIDUALS%%",   hideResiduals, html, fixed = TRUE)
 
-            # Toolbar labels
-            html <- gsub("%%LABEL_LAYOUT%%",        .("Auto Layout"),                        html, fixed = TRUE)
-            html <- gsub("%%LABEL_SHOW_EST%%",      .("Estimates"),                          html, fixed = TRUE)
-            html <- gsub("%%LABEL_HINT_RIGHTCLICK%%", .("Right-click a node to add paths"), html, fixed = TRUE)
+            # Toolbar labels (HTML text content)
+            html <- gsub("%%LABEL_LAYOUT%%",        htmlEscape(.("Auto Layout")),                        html, fixed = TRUE)
+            html <- gsub("%%LABEL_SHOW_EST%%",      htmlEscape(.("Estimates")),                          html, fixed = TRUE)
+            html <- gsub("%%LABEL_HINT_RIGHTCLICK%%", jsString(.("Right-click a node to add paths")), html, fixed = TRUE)
 
-            # Right-click menu labels (node and error node)
-            html <- gsub("%%LABEL_FIX_VALUE%%",         .("Fix value..."),      html, fixed = TRUE)
-            html <- gsub("%%LABEL_FIX_PARAM_TITLE%%",   .("Fix parameter"),     html, fixed = TRUE)
-            html <- gsub("%%LABEL_FIX_PARAM_ERR%%",     .("Enter a number."),   html, fixed = TRUE)
-            html <- gsub("%%LABEL_REMOVE_CONSTRAINT%%",  .("Remove constraint"), html, fixed = TRUE)
-            html <- gsub("%%LABEL_ADD_LOADING%%",    .("Add Loading"),    html, fixed = TRUE)
-            html <- gsub("%%LABEL_ADD_REGRESSION%%", .("Add Regression"), html, fixed = TRUE)
-            html <- gsub("%%LABEL_ADD_COVARIANCE%%", .("Add Covariance"), html, fixed = TRUE)
-            html <- gsub("%%LABEL_DELETE%%",         .("Delete"),         html, fixed = TRUE)
-            html <- gsub("%%LABEL_ERR_TOP%%",    .("Error above"), html, fixed = TRUE)
-            html <- gsub("%%LABEL_ERR_BOTTOM%%", .("Error below"), html, fixed = TRUE)
-            html <- gsub("%%LABEL_ERR_LEFT%%",   .("Error left"),  html, fixed = TRUE)
-            html <- gsub("%%LABEL_ERR_RIGHT%%",  .("Error right"), html, fixed = TRUE)
+            # Right-click menu labels (node and error node) — HTML text content
+            html <- gsub("%%LABEL_FIX_VALUE%%",         htmlEscape(.("Fix value...")),      html, fixed = TRUE)
+            html <- gsub("%%LABEL_FIX_PARAM_TITLE%%",   htmlEscape(.("Fix parameter")),     html, fixed = TRUE)
+            html <- gsub("%%LABEL_FIX_PARAM_ERR%%",     htmlEscape(.("Enter a number.")),   html, fixed = TRUE)
+            html <- gsub("%%LABEL_REMOVE_CONSTRAINT%%",  htmlEscape(.("Remove constraint")), html, fixed = TRUE)
+            html <- gsub("%%LABEL_ADD_LOADING%%",    htmlEscape(.("Add Loading")),    html, fixed = TRUE)
+            html <- gsub("%%LABEL_ADD_REGRESSION%%", htmlEscape(.("Add Regression")), html, fixed = TRUE)
+            html <- gsub("%%LABEL_ADD_COVARIANCE%%", htmlEscape(.("Add Covariance")), html, fixed = TRUE)
+            html <- gsub("%%LABEL_DELETE%%",         htmlEscape(.("Delete")),         html, fixed = TRUE)
+            html <- gsub("%%LABEL_ERR_TOP%%",    htmlEscape(.("Error above")), html, fixed = TRUE)
+            html <- gsub("%%LABEL_ERR_BOTTOM%%", htmlEscape(.("Error below")), html, fixed = TRUE)
+            html <- gsub("%%LABEL_ERR_LEFT%%",   htmlEscape(.("Error left")),  html, fixed = TRUE)
+            html <- gsub("%%LABEL_ERR_RIGHT%%",  htmlEscape(.("Error right")), html, fixed = TRUE)
 
-            # Modal labels
-            html <- gsub("%%LABEL_OK%%",           .("OK"),                              html, fixed = TRUE)
-            html <- gsub("%%LABEL_CANCEL%%",       .("Cancel"),                          html, fixed = TRUE)
-            html <- gsub("%%LABEL_EDIT_NAME%%",    .("Edit variable name"),              html, fixed = TRUE)
-            html <- gsub("%%LABEL_NAME_CONFLICT%%", .("Name already used as observed variable."), html, fixed = TRUE)
+            # Modal labels (HTML text content)
+            html <- gsub("%%LABEL_OK%%",           htmlEscape(.("OK")),                              html, fixed = TRUE)
+            html <- gsub("%%LABEL_CANCEL%%",       htmlEscape(.("Cancel")),                          html, fixed = TRUE)
+            html <- gsub("%%LABEL_EDIT_NAME%%",    htmlEscape(.("Edit variable name")),              html, fixed = TRUE)
+            html <- gsub("%%LABEL_NAME_CONFLICT%%", htmlEscape(.("Name already used as observed variable.")), html, fixed = TRUE)
 
             html <- gsub("%%CANVAS_NOTE_DISPLAY%%", if (nzchar(note)) "block" else "none", html, fixed = TRUE)
-            html <- gsub("%%CANVAS_NOTE%%",         note,                                   html, fixed = TRUE)
+            html <- gsub("%%CANVAS_NOTE%%",         htmlEscape(note),                       html, fixed = TRUE)
 
             self$results$diagram$setContent(html)
         }
