@@ -1,6 +1,6 @@
-# pathfy — Graphical SEM for Jamovi
+# pathfy — Graphical SEM for jamovi
 
-A [Jamovi](https://www.jamovi.org/) module for structural equation modeling with a graphical path diagram editor. Models are specified by drawing paths on a canvas and fitted using [lavaan](https://lavaan.ugent.be/).
+A [jamovi](https://www.jamovi.org/) module for structural equation modeling with a graphical path diagram editor. Models are specified by drawing paths on a canvas and fitted using [lavaan](https://lavaan.ugent.be/).
 
 ---
 
@@ -21,7 +21,7 @@ A [Jamovi](https://www.jamovi.org/) module for structural equation modeling with
 
 Download the latest `.jmo` file from the [Releases](../../releases) page, then install it as a sideloaded module:
 
-1. Open Jamovi
+1. Open jamovi
 2. Click the **⊞** button (top right)
 3. Select **Install from file...**
 4. Choose the downloaded `.jmo` file
@@ -109,11 +109,11 @@ s1 ~~ 0*s2
 
 ## Sample Data
 
-Example datasets in Jamovi format (`.omv`) are available in the [`data/omv/`](data/omv/) directory. Download and open them directly in Jamovi to try out the module.
+Example datasets in jamovi format (`.omv`) are available in the [`data/omv/`](data/omv/) directory. Download and open them directly in jamovi to try out the module.
 
 ## Requirements
 
-- [Jamovi](https://www.jamovi.org/) 2.3 or later
+- [jamovi](https://www.jamovi.org/) 2.3 or later
 - R packages: `lavaan`, `jsonlite`, `jmvcore`, `R6`
 
 ---
