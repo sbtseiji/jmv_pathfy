@@ -181,7 +181,7 @@ items:
           format: zto
 
     - name: residCov
-      title: Residual Covariances
+      title: Residuals for Observed Correlation Matrix
       type: Table
       visible: (residCov)
       rows: 0

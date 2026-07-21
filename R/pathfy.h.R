@@ -466,7 +466,7 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$add(jmvcore::Table$new(
                 options=options,
                 name="residCov",
-                title="Residual Covariances",
+                title="Residuals for Observed Correlation Matrix",
                 visible="(residCov)",
                 rows=0,
                 clearWith=list(
@@ -498,7 +498,7 @@ PathfyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "pathfy",
                 name = "Pathfy",
-                version = c(1,0,3),
+                version = c(1,1,0),
                 options = options,
                 results = PathfyResults$new(options=options),
                 data = data,

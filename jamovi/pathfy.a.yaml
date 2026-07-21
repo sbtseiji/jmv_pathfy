@@ -155,7 +155,7 @@ options:
       min: 0
 
     - name: residCov
-      title: Residual covariances
+      title: Residuals for Observed Correlation Matrix
       type: Bool
       default: false
 

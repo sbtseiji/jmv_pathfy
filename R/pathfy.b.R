@@ -373,7 +373,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             for (i in seq_along(vars)) {
                 values <- list(var = vars[i])
                 for (j in seq_along(vars)) {
-                    values[[vars[j]]] <- if (j < i) as.numeric(res[i, j]) else NA_real_
+                    if (j < i) values[[vars[j]]] <- as.numeric(res[i, j])
                 }
                 tbl$addRow(rowKey = i, values = values)
                 for (j in seq_len(i - 1)) {
