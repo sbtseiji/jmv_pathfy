@@ -1,4 +1,14 @@
-.EDITOR_HTML <- "<!DOCTYPE html>
+# GENERATED FILE — do not edit directly.
+# Source: inst/html/semgui_editor.html
+# Regenerate with: Rscript scripts/build_editor_html.R
+.EDITOR_HTML <- "<!--
+  This is the edit source for the path diagram editor. It is NOT shipped
+  inside the built .jmo module — after editing this file, regenerate the
+  string constant the package actually loads by running:
+    Rscript scripts/build_editor_html.R
+  which writes R/editor_html.R. Do not edit R/editor_html.R by hand.
+-->
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset=\"utf-8\">
@@ -205,7 +215,11 @@
 (function() {
   var d = window.__SG__ = {};
   try { d.vars      = %%VARS%%;            } catch(e) { d.vars      = []; }
-  try { d.model     = %%MODEL_SPEC%%;      } catch(e) { d.model     = {nodes:[],edges:[]}; }
+  try {
+    d.model = JSON.parse(%%MODEL_SPEC%%);
+    if (!d.model || !Array.isArray(d.model.nodes) || !Array.isArray(d.model.edges))
+      d.model = {nodes:[],edges:[]};
+  } catch(e) { d.model = {nodes:[],edges:[]}; }
   try { d.latent    = %%LATENT_VARS%%;     } catch(e) { d.latent    = []; }
   try { d.estimates = %%PARAM_ESTIMATES%%; } catch(e) { d.estimates = []; }
   d.showStd       = %%SHOW_STD%%;
@@ -382,7 +396,7 @@
     btnEst.classList.toggle('active', showEst && ESTIMATES.length>0);
     if (model.nodes.length > 0 && model.edges.length === 0 && !pending) {
       var hint = mkEl('text', {'x':'50%','y':'50%','text-anchor':'middle','dominant-baseline':'middle','class':'canvas-hint'});
-      hint.textContent = '%%LABEL_HINT_RIGHTCLICK%%';
+      hint.textContent = %%LABEL_HINT_RIGHTCLICK%%;
       svg.appendChild(hint);
     }
   }

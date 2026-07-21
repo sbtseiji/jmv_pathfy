@@ -45,6 +45,9 @@ renv/staging/
 # jamovi options js
 jamovi/ui/*.options.js
 
+# translation catalogs generated from jamovi/i18n/*.po at build time
+inst/i18n/
+
 # packaged module
 *.jmo
 
@@ -60,5 +63,8 @@ npm-debug.log
 inst/doc
 tests/testthat/Rplots.pdf
 
-# private scripts (not for distribution)
-scripts/
+# private scripts (not for distribution), except shared dev/build tooling
+# (git can't apply a negation to a file whose parent dir is fully ignored,
+# so this excludes contents rather than the directory itself)
+scripts/*
+!scripts/build_editor_html.R
