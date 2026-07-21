@@ -277,6 +277,18 @@
     return null;
   }
 
+  /* A node has a residual/disturbance only if something in the model points
+     at it (a loading or regression). Purely exogenous nodes (no incoming
+     path) just have their own variance estimated — that's not a residual,
+     and SEM diagrams don't draw an error circle for it. */
+  function isEndogenous(nodeId) {
+    for (var i=0; i<model.edges.length; i++) {
+      var e = model.edges[i];
+      if ((e.type==='loading'||e.type==='regression') && e.to===nodeId) return true;
+    }
+    return false;
+  }
+
   function svgPt(evt) {
     var pt = svg.createSVGPoint();
     pt.x = evt.clientX; pt.y = evt.clientY;
@@ -354,6 +366,7 @@
     if (!HIDE_RESIDUALS && ESTIMATES.length > 0) {
       for (var k=0;k<model.nodes.length;k++) {
         var nd=model.nodes[k];
+        if (!isEndogenous(nd.id)) continue;
         for (var ri=0;ri<ESTIMATES.length;ri++) {
           var re=ESTIMATES[ri];
           if (re.op==='~~'&&re.lhs===nd.label&&re.rhs===nd.label) {
@@ -383,9 +396,11 @@
       for (var k=0;k<model.nodes.length;k++) {
         var nd=model.nodes[k];
         var hasRes=false;
-        for (var ri=0;ri<ESTIMATES.length;ri++) {
-          var re=ESTIMATES[ri];
-          if (re.op==='~~'&&re.lhs===nd.label&&re.rhs===nd.label){hasRes=true;break;}
+        if (isEndogenous(nd.id)) {
+          for (var ri=0;ri<ESTIMATES.length;ri++) {
+            var re=ESTIMATES[ri];
+            if (re.op==='~~'&&re.lhs===nd.label&&re.rhs===nd.label){hasRes=true;break;}
+          }
         }
         if (hasRes) {
           var errIdx = nd.type==='latent' ? ++dIdx : ++eIdx;
