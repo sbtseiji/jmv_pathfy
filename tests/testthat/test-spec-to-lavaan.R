@@ -73,6 +73,24 @@ test_that("Latent-to-latent structural path", {
     expect_true(any(grepl("^F2 ~ F1$", lines)))
 })
 
+test_that("Latent-to-observed regression stays a regression, not a loading", {
+    spec <- list(
+        nodes = list(
+            list(id = "n1", type = "latent",   label = "F1"),
+            list(id = "n2", type = "observed", label = "x1"),
+            list(id = "n3", type = "observed", label = "x2"),
+            list(id = "n4", type = "observed", label = "y1")
+        ),
+        edges = list(
+            list(from = "n1", to = "n2", type = "loading"),
+            list(from = "n1", to = "n3", type = "loading"),
+            list(from = "n1", to = "n4", type = "regression")
+        )
+    )
+    result <- spec_to_lavaan(spec)
+    expect_equal(result$syntax, "F1 =~ x1 + x2\ny1 ~ F1")
+})
+
 test_that("Covariance between two latent factors", {
     spec <- list(
         nodes = list(

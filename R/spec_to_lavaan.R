@@ -55,13 +55,8 @@ spec_to_lavaan <- function(spec) {
             loadings[[fl]] <- c(loadings[[fl]], constrain(tl, edge))
 
         } else if (edge$type == "regression") {
-            if (identical(fromNode$type, "latent") && identical(toNode$type, "observed")) {
-                if (is.null(loadings[[fl]])) loadings[[fl]] <- character(0)
-                loadings[[fl]] <- c(loadings[[fl]], constrain(tl, edge))
-            } else {
-                if (is.null(regressions[[tl]])) regressions[[tl]] <- character(0)
-                regressions[[tl]] <- c(regressions[[tl]], constrain(fl, edge))
-            }
+            if (is.null(regressions[[tl]])) regressions[[tl]] <- character(0)
+            regressions[[tl]] <- c(regressions[[tl]], constrain(fl, edge))
 
         } else if (edge$type == "covariance") {
             if (fromNode$label != toNode$label) {
