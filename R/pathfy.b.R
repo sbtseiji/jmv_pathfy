@@ -81,7 +81,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                         std.lv    <- self$options$identification == "variance"
 
                         structSig <- private$.buildStructSig(
-                            spec, data, estimator, missing, std.lv,
+                            spec, lavaanModel, data, estimator, missing, std.lv,
                             self$options$ci, self$options$ciWidth
                         )
 
@@ -203,8 +203,11 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         # Structural signature: excludes cosmetic fields (x, y, residualDir) so
         # dragging a node in the diagram doesn't force a lavaan re-fit, and
         # fingerprints the data so real edits still invalidate the cache.
-        .buildStructSig = function(spec, data, estimator, missing, std.lv, ci, ciWidth) {
+        # The generated lavaan syntax is included too, so a fit cached by a
+        # module version that translated the same spec differently is not reused.
+        .buildStructSig = function(spec, lavaanModel, data, estimator, missing, std.lv, ci, ciWidth) {
             list(
+                lavaanModel = lavaanModel,
                 nodes = lapply(spec$nodes, function(n) list(id = n$id, label = n$label, type = n$type)),
                 edges = lapply(spec$edges, function(e) list(from = e$from, to = e$to, type = e$type, constraint = e$constraint)),
                 estimator = estimator,
