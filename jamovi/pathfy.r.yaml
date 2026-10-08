@@ -212,4 +212,11 @@ items:
       clearWith:
         - vars
         - modelSpec
+        - estimator
+        - missing
+        - identification
+        - latentVars
+        - std
+        - ci
+        - ciWidth
 ...

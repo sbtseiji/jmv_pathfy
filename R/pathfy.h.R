@@ -502,7 +502,14 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 visible="(showSyntax)",
                 clearWith=list(
                     "vars",
-                    "modelSpec")))}))
+                    "modelSpec",
+                    "estimator",
+                    "missing",
+                    "identification",
+                    "latentVars",
+                    "std",
+                    "ci",
+                    "ciWidth")))}))
 
 PathfyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "PathfyBase",

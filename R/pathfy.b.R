@@ -73,6 +73,8 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                             jmvcore::reject(errMsg)
                         }
 
+                        private$.warnUncorrelated(lavaanResult$uncorrelated)
+
                         estimator <- toupper(self$options$estimator)
                         missing   <- self$options$missing
                         # FIML is only supported with ML-family estimators
@@ -154,7 +156,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                         if (isTRUE(self$options$residCov))
                             private$.populateResidCov(fit, safeToLabel)
                         if (isTRUE(self$options$showSyntax))
-                            private$.populateSyntax(lavaanModel, safeToLabel)
+                            private$.populateSyntax(lavaanModel, safeToLabel, estimator, missing, std.lv)
                     }
                 }
             }
@@ -230,8 +232,30 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             )
         },
 
-        # lavaan model syntax display (with non-ASCII proxy-name mapping header)
-        .populateSyntax = function(lavaanModel, safeToLabel) {
+        # Exogenous latent variables with no covariance path drawn between
+        # them are fixed to be uncorrelated (see undrawn_covariances()); say so
+        # in the results, since lavaan would otherwise have correlated them.
+        .warnUncorrelated = function(pairs) {
+            if (length(pairs) == 0) return()
+            pairText <- paste(
+                vapply(pairs, function(p) paste0(p[1], " <-> ", p[2]), character(1)),
+                collapse = ", "
+            )
+            notice <- jmvcore::Notice$new(
+                options = self$options,
+                name    = "uncorrelated",
+                type    = jmvcore::NoticeType$WARNING
+            )
+            notice$setContent(jmvcore::format(
+                .("No covariance path is drawn between the following latent variables, so they are estimated as uncorrelated: {pairs}"),
+                pairs = pairText))
+            self$results$insert(2, notice)
+        },
+
+        # R script reproducing the analysis: the lavaan model syntax plus the
+        # sem() call with the estimation options actually used (with the
+        # non-ASCII proxy-name mapping as a header)
+        .populateSyntax = function(lavaanModel, safeToLabel, estimator, missing, std.lv) {
             header <- ""
             if (length(safeToLabel) > 0) {
                 mapping <- paste(
@@ -242,7 +266,37 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 note <- .("Non-ASCII variable names are replaced as above to prevent lavaan errors.")
                 header <- paste0(mapping, "\n# ", note, "\n\n")
             }
-            full_text <- paste0(header, lavaanModel)
+            # Observed variables with a proxy name are renamed in the data too,
+            # so that the script runs as is
+            quote <- function(x) paste0('"', gsub('(["\\\\])', "\\\\\\1", x), '"')
+            obsProxies <- grep("^OBSEM", names(safeToLabel), value = TRUE)
+            renames <- vapply(obsProxies, function(s)
+                paste0("names(data)[names(data) == ", quote(safeToLabel[[s]]), '] <- "', s, '"'),
+                character(1), USE.NAMES = FALSE)
+            std <- isTRUE(self$options$std)
+            script <- c(
+                "library(lavaan)",
+                "",
+                paste0("# ", .("In jamovi: paste into the Rj editor (in Rj+, add the model's variables to 'Variables' first).")),
+                paste0("# ", .("In R: load your data set into a data frame named 'data' first.")),
+                renames,
+                "",
+                "model <- '",
+                lavaanModel,
+                "'",
+                "",
+                "fit <- sem(model, data = data,",
+                paste0('           estimator = "', estimator, '", missing = "', missing,
+                       '", std.lv = ', std.lv, ")"),
+                # lavaan::summary rather than summary: jamovi's Rj editor does
+                # not dispatch a bare summary() to lavaan's method
+                paste0("lavaan::summary(fit, fit.measures = TRUE, standardized = ", std, ")")
+            )
+            if (isTRUE(self$options$ci))
+                script <- c(script, paste0(
+                    "parameterEstimates(fit, standardized = ", std,
+                    ", ci = TRUE, level = ", self$options$ciWidth / 100, ")"))
+            full_text <- paste0(header, paste(script, collapse = "\n"))
             escaped <- gsub("&", "&amp;", full_text, fixed = TRUE)
             escaped <- gsub("<", "&lt;",  escaped,   fixed = TRUE)
             self$results$lavaanCode$setContent(
