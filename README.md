@@ -113,7 +113,7 @@ Example datasets in jamovi format (`.omv`) are available in the [`data/omv/`](da
 
 ## Requirements
 
-- [jamovi](https://www.jamovi.org/) 2.3 or later
+- [jamovi](https://www.jamovi.org/) 2.7 or later
 - R packages: `lavaan`, `jsonlite`, `jmvcore`, `R6`
 
 ---

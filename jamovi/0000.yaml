@@ -24,6 +24,6 @@ analyses:
       A graphical user interface for structural equation modeling. Supports CFA,
       path models, full SEM, higher-order factors, and bifactor models.
 usesNative: true
-minApp: 1.0.8
+minApp: 2.7.0
 
 ...
