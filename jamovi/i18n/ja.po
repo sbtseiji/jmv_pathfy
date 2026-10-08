@@ -453,3 +453,31 @@ msgstr "χ²検定"
 #: Pathfy/ui[0][1]/latentVars.addButton
 msgid "Add"
 msgstr "追加"
+
+#: R/pathfy.b.R
+msgid "Undo Layout"
+msgstr "配置を戻す"
+
+#: R/pathfy.b.R
+msgid "No covariance path is drawn between the following latent variables, so they are estimated as uncorrelated: {pairs}"
+msgstr "次の潜在変数の間には共分散パスが描かれていないため、無相関として推定されます: {pairs}"
+
+#: R/pathfy.b.R
+msgid "In R: load your data set into a data frame named 'data' first."
+msgstr "R の場合: 先にデータを data という名前のデータフレームに読み込んでください。"
+
+#: R/pathfy.b.R
+msgid "In jamovi: paste into the Rj editor (in Rj+, add the model's variables to 'Variables' first)."
+msgstr "jamovi の場合: Rj エディタに貼り付けてください(Rj+ ではモデルで使った変数を先に「Variables」に入れます)。"
+
+#: R/pathfy.b.R
+msgid "Copy Image"
+msgstr "画像をコピー"
+
+#: R/pathfy.b.R
+msgid "Copied"
+msgstr "コピーしました"
+
+#: R/pathfy.b.R
+msgid "Copy failed"
+msgstr "コピーできませんでした"

@@ -382,3 +382,31 @@ msgstr ""
 #: Pathfy/ui[0][1]/latentVars.addButton
 msgid "Add"
 msgstr ""
+
+#: R/pathfy.b.R
+msgid "Undo Layout"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "No covariance path is drawn between the following latent variables, so they are estimated as uncorrelated: {pairs}"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "In R: load your data set into a data frame named 'data' first."
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "In jamovi: paste into the Rj editor (in Rj+, add the model's variables to 'Variables' first)."
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "Copy Image"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "Copied"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "Copy failed"
+msgstr ""
