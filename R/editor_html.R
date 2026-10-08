@@ -66,20 +66,17 @@
 .edge-covariance { stroke: #555; stroke-width: 1.5; fill: none; }
 .edge-selected line, .edge-selected path { stroke: #1976D2 !important; stroke-width: 2.5; }
 .edge-preview { stroke: #1976D2; stroke-width: 1.5; stroke-dasharray: 5,3; fill: none; pointer-events: none; }
+.marquee { fill: rgba(25,118,210,0.08); stroke: #1976D2; stroke-width: 1; stroke-dasharray: 4,3; pointer-events: none; }
 
 /* ── estimate labels ─────────────────────────────────────── */
 .est-lbl {
-  font-size: 10px; fill: #c62828; text-anchor: middle;
+  font-size: 10px; fill: #222; text-anchor: middle;
   dominant-baseline: central; pointer-events: none;
 }
 
 /* ── error / disturbance nodes ───────────────────────────── */
 .node-error circle { fill: #fff; stroke: #888; stroke-width: 1; }
 .error-label { font-size: 10px; fill: #666; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
-
-/* ── constrained edges (fixed parameter) ─────────────────── */
-.edge-constrained > line,
-.edge-constrained > path { stroke: #1565C0; }
 
 /* ── canvas hint ─────────────────────────────────────────── */
 .canvas-hint { fill: #bbb; font-size: 13px; pointer-events: none; user-select: none; }
@@ -137,11 +134,16 @@
 <div id=\"toolbar\">
   <button id=\"btnEst\" class=\"tool-btn toggle-btn\">%%LABEL_SHOW_EST%%</button>
   <span class=\"spacer\"></span>
+  <button id=\"btnCopyImage\" class=\"tool-btn\">%%LABEL_COPY_IMAGE%%</button>
+  <button id=\"btnUndoLayout\" class=\"tool-btn\" style=\"display:none\">%%LABEL_UNDO_LAYOUT%%</button>
   <button id=\"btnLayout\" class=\"tool-btn\">%%LABEL_LAYOUT%%</button>
 </div>
 
 <!-- ── SVG canvas ──────────────────────────────────────────── -->
-<svg id=\"canvas\" xmlns=\"http://www.w3.org/2000/svg\">
+<!-- Size and look are given as attributes too, not only by the stylesheet
+     above: jamovi's export (PDF, HTML) and the copied image do not carry the
+     stylesheet along. -->
+<svg id=\"canvas\" xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" height=\"480\" style=\"display:block;width:100%;height:480px;background-color:#fafafa;\">
   <defs>
     <marker id=\"arr\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"3\" orient=\"auto\">
       <path d=\"M0,0 L0,6 L8,3 z\" fill=\"#555\"/>
@@ -202,7 +204,7 @@
 <!-- ── constraint popup (positioned near click) ────────────── -->
 <div id=\"constraintPopup\" class=\"ctx-menu hidden\" style=\"padding:10px 12px;min-width:180px;\">
   <div style=\"font-size:12px;font-weight:600;margin-bottom:6px;\">%%LABEL_FIX_PARAM_TITLE%%</div>
-  <input id=\"constraintInput\" class=\"modal-input\" type=\"text\" placeholder=\"0\" style=\"margin-bottom:4px;\">
+  <input id=\"constraintInput\" class=\"modal-input\" type=\"text\" style=\"margin-bottom:4px;\">
   <div id=\"constraintError\" style=\"color:#c62828;font-size:11px;margin-bottom:4px;display:none;\">%%LABEL_FIX_PARAM_ERR%%</div>
   <div style=\"display:flex;gap:6px;justify-content:flex-end;margin-top:6px;\">
     <button id=\"btnConstraintCancel\" class=\"modal-btn\" style=\"font-size:12px;padding:3px 10px;\">%%LABEL_CANCEL%%</button>
@@ -242,6 +244,10 @@
   if (!Array.isArray(model.nodes)) model.nodes = [];
   if (!Array.isArray(model.edges)) model.edges = [];
 
+  /* Half width / half height of an observed-variable box. Nine of them in a
+     row (three factors with three indicators each) fit the 620px canvas. */
+  var OBS_HW = 32, OBS_HH = 15;
+
   /* Fixed canvas dimensions matching CSS */
   var CANVAS_H = 480;
   var CANVAS_W = 620;
@@ -250,6 +256,9 @@
   var showEst = ESTIMATES.length > 0;
   var selId   = null;
   var selType = null;
+  var selNodes = {};   /* ids of the selected nodes; several after a marquee or shift-click */
+  var marquee = null;  /* {x0,y0,x1,y1} while a selection rectangle is dragged out */
+  var suppressClick = false; /* the click that ends a marquee must not clear the selection */
   var pending = null;
   var dragging = null;
   var mouseX = 0, mouseY = 0;
@@ -266,11 +275,14 @@
   var constraintInput  = document.getElementById('constraintInput');
   var constraintError  = document.getElementById('constraintError');
   var btnEst           = document.getElementById('btnEst');
+  var btnUndoLayout    = document.getElementById('btnUndoLayout');
 
   /* ── helpers ──────────────────────────────────────────── */
 
   var _c = 0;
   function uid() { return 'n' + (++_c) + Math.random().toString(36).slice(2,5); }
+
+  function selCount() { return Object.keys(selNodes).length; }
 
   function findNode(id) {
     for (var i=0; i<model.nodes.length; i++) if (model.nodes[i].id===id) return model.nodes[i];
@@ -289,6 +301,14 @@
     return false;
   }
 
+  /* Distance from a node's centre to the centre of its error term. Observed
+     nodes are wider than tall, so beside them the error term sits further out
+     to leave the same length of arrow as above or below. */
+  function residualGap(n, dir) {
+    if (n.type!=='observed') return 72;
+    return (dir==='left'||dir==='right') ? 80 : 60;
+  }
+
   function svgPt(evt) {
     var pt = svg.createSVGPoint();
     pt.x = evt.clientX; pt.y = evt.clientY;
@@ -300,7 +320,7 @@
     if (d<0.001) return {x:n.x,y:n.y};
     var ux=dx/d, uy=dy/d;
     if (n.type==='observed') {
-      var t=Math.min(Math.abs(ux)>0?35/Math.abs(ux):1e9, Math.abs(uy)>0?15/Math.abs(uy):1e9);
+      var t=Math.min(Math.abs(ux)>0?OBS_HW/Math.abs(ux):1e9, Math.abs(uy)>0?OBS_HH/Math.abs(uy):1e9);
       return {x:n.x+ux*t, y:n.y+uy*t};
     }
     var a=(ux*ux)/1600+(uy*uy)/484;
@@ -370,7 +390,7 @@
         for (var ri=0;ri<ESTIMATES.length;ri++) {
           var re=ESTIMATES[ri];
           if (re.op==='~~'&&re.lhs===nd.label&&re.rhs===nd.label) {
-            var dir=nd.residualDir||'top', gap=nd.type==='observed'?60:72, ex, ey;
+            var dir=nd.residualDir||'top', gap=residualGap(nd,dir), ex, ey;
             if      (dir==='bottom'){ex=nd.x;      ey=nd.y+gap;}
             else if (dir==='left')  {ex=nd.x-gap;  ey=nd.y;   }
             else if (dir==='right') {ex=nd.x+gap;  ey=nd.y;   }
@@ -390,6 +410,11 @@
       }
     }
     for (var j=0;j<model.nodes.length;j++) drawNodeEl(model.nodes[j]);
+    if (marquee) {
+      svg.appendChild(mkEl('rect',{class:'marquee',
+        x:Math.min(marquee.x0,marquee.x1), y:Math.min(marquee.y0,marquee.y1),
+        width:Math.abs(marquee.x1-marquee.x0), height:Math.abs(marquee.y1-marquee.y0)}));
+    }
     /* Draw error/disturbance nodes when hideResiduals is off and estimates exist */
     if (!HIDE_RESIDUALS && ESTIMATES.length > 0) {
       var eIdx=0, dIdx=0;
@@ -409,6 +434,7 @@
       }
     }
     btnEst.classList.toggle('active', showEst && ESTIMATES.length>0);
+    btnUndoLayout.style.display = model.prevLayout ? '' : 'none';
     if (model.nodes.length > 0 && model.edges.length === 0 && !pending) {
       var hint = mkEl('text', {'x':'50%','y':'50%','text-anchor':'middle','dominant-baseline':'middle','class':'canvas-hint'});
       hint.textContent = %%LABEL_HINT_RIGHTCLICK%%;
@@ -416,19 +442,53 @@
     }
   }
 
+  /* Look of the diagram's elements, by class. Set as attributes on each
+     element (see the note at the <svg> tag); the stylesheet only adds what
+     depends on state, such as the highlight of a selection. */
+  var FONT = '-apple-system, BlinkMacSystemFont, \"Helvetica Neue\", Arial, sans-serif';
+  var LINE = {stroke:'#555','stroke-width':1.5,fill:'none'};
+  /* stroke none: labels sit inside the <g> of a path and must not inherit its stroke */
+  var TEXT = {'text-anchor':'middle','dominant-baseline':'central','font-family':FONT,stroke:'none'};
+  function withAttrs(base, extra) {
+    var o={}, k;
+    for (k in base) o[k]=base[k];
+    for (k in extra) o[k]=extra[k];
+    return o;
+  }
+  var LOOK = {
+    'edge-loading':    withAttrs(LINE, {'stroke-dasharray':'6,3'}),
+    'edge-regression': LINE,
+    'edge-covariance': LINE,
+    'edge-preview':    {stroke:'#1976D2','stroke-width':1.5,'stroke-dasharray':'5,3',fill:'none'},
+    'marquee':         {fill:'rgba(25,118,210,0.08)',stroke:'#1976D2','stroke-width':1,'stroke-dasharray':'4,3'},
+    'shape-observed':  {fill:'#fff',stroke:'#444','stroke-width':1.5},
+    'shape-latent':    {fill:'#f0f4ff',stroke:'#555','stroke-width':1.5},
+    'shape-error':     {fill:'#fff',stroke:'#888','stroke-width':1},
+    'node-label':      withAttrs(TEXT, {'font-size':'12px',fill:'#000'}),
+    'est-lbl':         withAttrs(TEXT, {'font-size':'10px',fill:'#222'}),
+    'error-label':     withAttrs(TEXT, {'font-size':'10px',fill:'#666'}),
+    'constraint-lbl':  withAttrs(TEXT, {'font-size':'10px',fill:'#1565C0','font-weight':'bold'}),
+    'canvas-hint':     {fill:'#bbb','font-size':'13px','font-family':FONT,stroke:'none'}
+  };
+  /* paths with a fixed parameter; set as an inline style, which unlike an
+     attribute takes precedence over the stylesheet's colour for paths */
+  var FIXED_COLOR = '#1565C0';
+
   function mkEl(tag, attrs) {
     var el=document.createElementNS('http://www.w3.org/2000/svg',tag);
-    for (var k in attrs) el.setAttribute(k,attrs[k]);
+    var look=LOOK[attrs['class']], k;
+    for (k in look) el.setAttribute(k,look[k]);
+    for (k in attrs) el.setAttribute(k,attrs[k]);
     return el;
   }
 
   function drawNodeEl(n) {
-    var isSel=selId===n.id&&selType==='node';
+    var isSel=!!selNodes[n.id];
     var g=mkEl('g',{class:'node node-'+n.type+(isSel?' node-selected':''),'data-id':n.id});
     if (n.type==='observed') {
-      g.appendChild(mkEl('rect',{x:n.x-35,y:n.y-15,width:70,height:30,rx:3}));
+      g.appendChild(mkEl('rect',{class:'shape-observed',x:n.x-OBS_HW,y:n.y-OBS_HH,width:2*OBS_HW,height:2*OBS_HH,rx:3}));
     } else {
-      g.appendChild(mkEl('ellipse',{cx:n.x,cy:n.y,rx:40,ry:22}));
+      g.appendChild(mkEl('ellipse',{class:'shape-latent',cx:n.x,cy:n.y,rx:40,ry:22}));
     }
     var t=mkEl('text',{class:'node-label',x:n.x,y:n.y}); t.textContent=n.label;
     g.appendChild(t);
@@ -458,13 +518,40 @@
     var dx=p2.x-p1.x, dy=p2.y-p1.y, d=Math.sqrt(dx*dx+dy*dy);
     var x2=d>0?p2.x-dx/d*9:p2.x, y2=d>0?p2.y-dy/d*9:p2.y;
     var constrained=edge.constraint!=null&&edge.constraint!=='';
-    g.appendChild(mkEl('line',{class:'edge-'+edge.type,x1:p1.x,y1:p1.y,x2:x2,y2:y2,
-      'marker-end':'url(#'+(isSel||constrained?'arr-sel':'arr')+')'}));
+    var ln=mkEl('line',{class:'edge-'+edge.type,x1:p1.x,y1:p1.y,x2:x2,y2:y2,
+      'marker-end':'url(#'+(isSel||constrained?'arr-sel':'arr')+')'});
+    if (constrained) ln.style.stroke=FIXED_COLOR;
+    g.appendChild(ln);
     g.appendChild(mkEl('line',{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,stroke:'transparent','stroke-width':10}));
     var mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2-9;
     if (edge.constraint!=null&&edge.constraint!=='') {
       var ct=mkEl('text',{class:'constraint-lbl',x:mx,y:my}); ct.textContent=edge.constraint; g.appendChild(ct);
     } else { var e=getEst(edge); if (e){var t=mkEl('text',{class:'est-lbl',x:mx,y:my}); t.textContent=fmtEst(e); g.appendChild(t);} }
+  }
+
+  /* Which side of the from→to line a covariance arc bulges to (+1 / -1).
+     The arc is kept away from whatever else hangs off its two end nodes
+     (indicators, predictors, ...): it bulges to the side opposite their
+     centroid. When the arc joins error terms, the nodes owning them count
+     too. This must not depend on which end the path was drawn from, so with
+     nothing to avoid the arc goes above the line (left of a vertical one). */
+  function arcSide(fn,tn,fx,fy,dx,dy,len,fromErr,toErr) {
+    var sx=0, sy=0, cnt=0;
+    function avoid(n){sx+=n.x;sy+=n.y;cnt++;}
+    if (fromErr) avoid(fn);
+    if (toErr)   avoid(tn);
+    for (var i=0;i<model.edges.length;i++) {
+      var e=model.edges[i], oid=null;
+      if (e.from===fn.id||e.from===tn.id) oid=e.to;
+      else if (e.to===fn.id||e.to===tn.id) oid=e.from;
+      if (oid===null||oid===fn.id||oid===tn.id) continue;
+      var o=findNode(oid); if (o) avoid(o);
+    }
+    /* signed distance of the centroid from the line, along the (-dy,dx) normal */
+    var dist = cnt>0&&len>0 ? (-dy*(sx/cnt-fx)+dx*(sy/cnt-fy))/len : 0;
+    if (Math.abs(dist)>=1) return dist>0?-1:1;
+    if (Math.abs(dx)>=1) return dx>0?-1:1;
+    return dy>0?1:-1;
   }
 
   function drawArc(g,fn,tn,isSel,edge) {
@@ -474,7 +561,11 @@
     var tx=tp?tp.x:tn.x, ty=tp?tp.y:tn.y;
     var mx=(fx+tx)/2, my=(fy+ty)/2;
     var dx=tx-fx, dy=ty-fy, len=Math.sqrt(dx*dx+dy*dy);
-    var cx=mx+(-dy/(len||1)*55), cy=my+(dx/(len||1)*55);
+    var side=arcSide(fn,tn,fx,fy,dx,dy,len,!!fp,!!tp);
+    /* longer arcs bulge further, so that they pass over shorter ones on the
+       same side instead of running through them */
+    var bulge=Math.max(55,len*0.28)*side;
+    var cx=mx+(-dy/(len||1)*bulge), cy=my+(dx/(len||1)*bulge);
     function errBdr(c,t){var ddx=t.x-c.x,ddy=t.y-c.y,dd=Math.sqrt(ddx*ddx+ddy*ddy);
       return dd>0?{x:c.x+ddx/dd*er,y:c.y+ddy/dd*er}:c;}
     var p1=fp?errBdr(fp,{x:cx,y:cy}):borderPt(fn,cx,cy);
@@ -482,16 +573,22 @@
     var pd='M'+p1.x+' '+p1.y+' Q'+cx+' '+cy+' '+p2.x+' '+p2.y;
     var constrained=edge.constraint!=null&&edge.constraint!=='';
     var suf=isSel||constrained?'-sel':'';
-    g.appendChild(mkEl('path',{class:'edge-covariance',d:pd,
-      'marker-start':'url(#arr-s'+suf+')','marker-end':'url(#arr'+suf+')'}));
+    var arc=mkEl('path',{class:'edge-covariance',d:pd,
+      'marker-start':'url(#arr-s'+suf+')','marker-end':'url(#arr'+suf+')'});
+    if (constrained) arc.style.stroke=FIXED_COLOR;
+    g.appendChild(arc);
     g.appendChild(mkEl('path',{d:pd,stroke:'transparent','stroke-width':10,fill:'none'}));
+    /* label just outside the top of the arc (the control point itself lies
+       twice as far out as the curve ever gets) */
+    var bl=Math.sqrt((cx-mx)*(cx-mx)+(cy-my)*(cy-my))||1;
+    var lx=(p1.x+2*cx+p2.x)/4+(cx-mx)/bl*10, ly=(p1.y+2*cy+p2.y)/4+(cy-my)/bl*10;
     if (edge.constraint!=null&&edge.constraint!=='') {
-      var ct=mkEl('text',{class:'constraint-lbl',x:cx,y:cy-8}); ct.textContent=edge.constraint; g.appendChild(ct);
-    } else { var e=getEst(edge); if (e){var t=mkEl('text',{class:'est-lbl',x:cx,y:cy-8}); t.textContent=fmtEst(e); g.appendChild(t);} }
+      var ct=mkEl('text',{class:'constraint-lbl',x:lx,y:ly}); ct.textContent=edge.constraint; g.appendChild(ct);
+    } else { var e=getEst(edge); if (e){var t=mkEl('text',{class:'est-lbl',x:lx,y:ly}); t.textContent=fmtEst(e); g.appendChild(t);} }
   }
 
   function drawSelfLoop(g,n,isSel,edge) {
-    var ox=n.type==='observed'?n.x+28:n.x+33, oy=n.type==='observed'?n.y-15:n.y-18, r=18;
+    var ox=n.type==='observed'?n.x+OBS_HW-7:n.x+33, oy=n.type==='observed'?n.y-OBS_HH:n.y-18, r=18;
     var d='M'+ox+' '+(oy+r)+' A'+r+' '+r+' 0 1 1 '+(ox+r)+' '+oy;
     g.appendChild(mkEl('path',{class:'edge-covariance',d:d,'marker-end':'url(#arr'+(isSel?'-sel':'')+')'}));
     var e=getEst(edge);
@@ -510,10 +607,10 @@
     var prefix = n.type==='latent' ? 'd' : 'e';
     var errLabel = prefix + idx;
     var er = 13;
-    var gap = n.type==='observed' ? 60 : 72;
 
     /* Position based on residualDir stored in node */
     var dir = n.residualDir || 'top';
+    var gap = residualGap(n, dir);
     var ex, ey;
     if      (dir === 'bottom') { ex = n.x;       ey = n.y + gap; }
     else if (dir === 'left')   { ex = n.x - gap; ey = n.y;       }
@@ -522,7 +619,7 @@
 
     /* Error/disturbance circle — right-clickable, click completes pending covariance */
     var cg = mkEl('g', {class:'node node-error', 'data-error-for':n.id});
-    cg.appendChild(mkEl('circle', {cx:ex, cy:ey, r:er}));
+    cg.appendChild(mkEl('circle', {class:'shape-error', cx:ex, cy:ey, r:er}));
     var ct = mkEl('text', {class:'error-label', x:ex, y:ey});
     ct.textContent = errLabel;
     cg.appendChild(ct);
@@ -547,7 +644,8 @@
         ? (resEst['std.all']!=null&&!isNaN(+resEst['std.all']) ? (+resEst['std.all']).toFixed(3) : '')
         : (resEst.est!=null ? (+resEst.est).toFixed(3) : '');
       if (lbl) {
-        var lt = mkEl('text',{class:'est-lbl',x:(sx+p2.x)/2+8,y:(sy+p2.y)/2});
+        var horiz = dir==='left'||dir==='right';
+        var lt = mkEl('text',{class:'est-lbl',x:(sx+p2.x)/2+(horiz?0:19),y:(sy+p2.y)/2-(horiz?9:0)});
         lt.textContent=lbl; ag.appendChild(lt);
       }
     }
@@ -590,12 +688,21 @@
 
   /* ── auto layout ────────────────────────────────────────── */
 
-  /* Layered layout: latents/structural observed variables (\"core\" nodes) are
-     placed left-to-right by causal layer (based on regression edges), with
-     each layer's nodes stacked vertically. Pure single-factor indicators
-     (observed nodes only used as a loading target of one latent) are excluded
-     from the core layout and instead fanned in a row directly below their own
-     parent latent, so factors don't get visually mixed together. */
+  /* Layered layout following the usual conventions of SEM diagrams.
+
+     Indicators (observed variables that are only loading targets) are not
+     laid out on their own: each is fanned out next to the factor it belongs
+     to. The remaining \"core\" nodes are put in layers by longest path over
+     regressions and factor-on-factor loadings, and ordered within a layer by
+     the average position of their neighbours, to keep paths from crossing.
+
+     - With no regressions (CFA, higher-order, bifactor) layers run top to
+       bottom: higher-order factors above, indicators below the factors.
+     - With regressions layers run left to right in causal order. Indicators
+       go to the outer side: left of the first layer, right of the last one,
+       above or below in between.
+
+     Error terms are turned to the side with the fewest paths. */
   function autoLayout() {
     /* Trust the measured width unless it's implausibly small (e.g. not yet
        laid out), in which case fall back to the default canvas size. Forcing
@@ -605,119 +712,329 @@
     var W = (_measuredW && _measuredW > 100) ? _measuredW : CANVAS_W;
     var H = CANVAS_H;
 
+    var FAN_GAP = 92;  /* factor to its row of indicators */
+    var SLOT    = 82;  /* between indicators in a row */
+    var NODE_W  = 2 * OBS_HW + 2; /* below this, indicators in a row are staggered */
+    var STEP    = 38;  /* between indicators in a column */
+    var SIDE    = 120; /* factor to its column of indicators */
+    /* room beyond an indicator, for its error term when those are shown */
+    var ERR_SIDE = HIDE_RESIDUALS ? 0 : 55;
+    var ERR_FAN  = HIDE_RESIDUALS ? 17 : 75;
+
     var nodesById = {};
     model.nodes.forEach(function(n){ nodesById[n.id] = n; });
 
-    var loadingTargets = {}; /* observed id -> [latent ids] loading onto it */
-    var inOtherEdge     = {}; /* node id -> true if used in a regression/covariance edge */
+    /* State before the layout, for Undo Layout. Kept in the model itself
+       (not in a JS variable) because this page is rebuilt from modelSpec
+       every time the analysis runs. */
+    var before = {};
+    model.nodes.forEach(function(n){ before[n.id] = {x:n.x, y:n.y, residualDir:n.residualDir}; });
+
+    /* ── classify nodes ── */
+
+    var loaders = {};      /* node id -> [latent ids] loading onto it */
+    var loadCount = {};    /* latent id -> number of loadings it sends out */
+    var inRegression = {}; /* node id -> true if it is an end of a regression */
+    var hasEdge = {};
     model.edges.forEach(function(e) {
+      if (e.from === e.to || !nodesById[e.from] || !nodesById[e.to]) return;
+      hasEdge[e.from] = hasEdge[e.to] = true;
       if (e.type === 'loading') {
-        (loadingTargets[e.to] = loadingTargets[e.to] || []).push(e.from);
-      } else {
-        inOtherEdge[e.from] = true;
-        inOtherEdge[e.to]   = true;
+        (loaders[e.to] = loaders[e.to] || []).push(e.from);
+        loadCount[e.from] = (loadCount[e.from] || 0) + 1;
+      } else if (e.type === 'regression') {
+        inRegression[e.from] = inRegression[e.to] = true;
       }
     });
 
-    /* observed node -> parent latent id, only for \"pure\" single-factor indicators */
-    var indicatorOf = {};
+    /* An indicator shared by several factors goes with the most specific
+       one (fewest loadings), e.g. with its group factor in a bifactor model. */
+    var indicatorOf = {}, kidsOf = {};
     model.nodes.forEach(function(n) {
-      if (n.type === 'observed') {
-        var loaders = loadingTargets[n.id];
-        if (loaders && loaders.length === 1 && !inOtherEdge[n.id]) indicatorOf[n.id] = loaders[0];
-      }
+      var ls = loaders[n.id];
+      if (n.type !== 'observed' || !ls || inRegression[n.id]) return;
+      var owner = ls[0];
+      ls.forEach(function(l){ if (loadCount[l] < loadCount[owner]) owner = l; });
+      indicatorOf[n.id] = owner;
+      (kidsOf[owner] = kidsOf[owner] || []).push(n);
     });
+    function kids(n) { return kidsOf[n.id] || []; }
+    function hasKids(n) { return kids(n).length > 0; }
 
-    var coreNodes = model.nodes.filter(function(n) { return indicatorOf[n.id] === undefined; });
+    var core = [], loose = []; /* loose: not connected to anything */
+    model.nodes.forEach(function(n) {
+      if (indicatorOf[n.id] !== undefined) return;
+      (hasEdge[n.id] ? core : loose).push(n);
+    });
     var coreIds = {};
-    coreNodes.forEach(function(n) { coreIds[n.id] = true; });
+    core.forEach(function(n){ coreIds[n.id] = true; });
 
-    /* structural graph: regression edges between core nodes only */
-    var outEdges = {}, inDeg = {};
-    coreNodes.forEach(function(n) { outEdges[n.id] = []; inDeg[n.id] = 0; });
+    /* directed graph over the core nodes */
+    var out = {}, inn = {}, hasRegression = false;
+    core.forEach(function(n){ out[n.id] = []; inn[n.id] = []; });
     model.edges.forEach(function(e) {
-      if (e.type === 'regression' && coreIds[e.from] && coreIds[e.to] && e.from !== e.to) {
-        outEdges[e.from].push(e.to);
-        inDeg[e.to]++;
-      }
+      if (e.type === 'covariance' || e.from === e.to || !coreIds[e.from] || !coreIds[e.to]) return;
+      out[e.from].push(e.to);
+      inn[e.to].push(e.from);
+      if (e.type === 'regression') hasRegression = true;
     });
 
-    /* longest-path layering via Kahn's topological sort (cycles just fall back to layer 0) */
-    var layer = {};
-    coreNodes.forEach(function(n) { layer[n.id] = 0; });
-    var inDegLeft = {};
-    coreNodes.forEach(function(n) { inDegLeft[n.id] = inDeg[n.id]; });
-    var queue = coreNodes.filter(function(n) { return inDeg[n.id] === 0; }).map(function(n) { return n.id; });
-    var qi = 0;
-    while (qi < queue.length) {
-      var id = queue[qi++];
-      outEdges[id].forEach(function(toId) {
-        if (layer[toId] < layer[id] + 1) layer[toId] = layer[id] + 1;
-        inDegLeft[toId]--;
-        if (inDegLeft[toId] === 0) queue.push(toId);
+    /* Factors whose indicators all go with other factors (the general factor
+       of a bifactor model) get a row of their own in the top-to-bottom layout. */
+    var general = [];
+    if (!hasRegression) {
+      core = core.filter(function(n) {
+        var isGeneral = n.type === 'latent' && loadCount[n.id] && !hasKids(n) &&
+                        !out[n.id].length && !inn[n.id].length;
+        if (isGeneral) general.push(n);
+        return !isGeneral;
       });
     }
 
-    var maxLayer = 0;
-    coreNodes.forEach(function(n) { if (layer[n.id] > maxLayer) maxLayer = layer[n.id]; });
-    var numLayers = maxLayer + 1;
+    /* ── layers ── */
+
+    /* longest-path layering via Kahn's topological sort (cycles just stay in layer 0) */
+    var layer = {}, waiting = {}, queue = [];
+    core.forEach(function(n) {
+      layer[n.id] = 0;
+      waiting[n.id] = inn[n.id].length;
+      if (!waiting[n.id]) queue.push(n.id);
+    });
+    for (var qi = 0; qi < queue.length; qi++) {
+      var id = queue[qi];
+      out[id].forEach(function(toId) {
+        if (layer[toId] < layer[id] + 1) layer[toId] = layer[id] + 1;
+        if (--waiting[toId] === 0) queue.push(toId);
+      });
+    }
+    var numLayers = 1;
+    core.forEach(function(n){ numLayers = Math.max(numLayers, layer[n.id] + 1); });
+    var last = numLayers - 1;
+
+    /* Top to bottom, every factor that is not above another one sits in the
+       bottom row, so that all rows of indicators line up. */
+    if (!hasRegression) core.forEach(function(n){ if (!out[n.id].length) layer[n.id] = last; });
 
     var byLayer = [];
-    for (var li = 0; li <= maxLayer; li++) byLayer.push([]);
-    coreNodes.forEach(function(n) { byLayer[layer[n.id]].push(n); });
+    for (var li = 0; li < numLayers; li++) byLayer.push([]);
+    core.forEach(function(n){ byLayer[layer[n.id]].push(n); });
 
-    var marginX = 70, marginY = 60;
-
-    if (numLayers <= 1) {
-      /* no structural edges among core nodes: spread them in a single row
-         (classic CFA look — factors across the top, indicators fanned below) */
-      var row = byLayer[0] || [];
-      var y0 = Math.round(H * 0.30);
-      row.forEach(function(n, i) {
-        n.x = Math.round(W * (i + 1) / (row.length + 1));
-        n.y = y0;
+    /* order within layers: sweep down and up, sorting each layer by the mean
+       rank of its neighbours in the layers already passed */
+    var rank = {};
+    function setRanks(l) { l.forEach(function(n, i){ rank[n.id] = (i + 0.5) / l.length; }); }
+    function sortBy(l, neighbours) {
+      var key = {};
+      l.forEach(function(n) {
+        var ids = neighbours[n.id], s = 0;
+        ids.forEach(function(nid){ s += rank[nid]; });
+        key[n.id] = ids.length ? s / ids.length : rank[n.id];
       });
+      l.sort(function(a, b){ return (key[a.id] - key[b.id]) || (rank[a.id] - rank[b.id]); });
+      setRanks(l);
+    }
+    byLayer.forEach(setRanks);
+    for (var sweep = 0; sweep < 2; sweep++) {
+      for (li = 1; li < numLayers; li++) sortBy(byLayer[li], inn);
+      for (li = numLayers - 2; li >= 0; li--) sortBy(byLayer[li], out);
+    }
+
+    /* ── placement helpers ── */
+
+    /* Indicators in a row above (dirY -1) or below (+1) their factor. Too
+       narrow a slot staggers them; `first` is the position of the first one
+       in a row shared with other factors, so that neighbours alternate. */
+    function fanRow(parent, dirY, slot, gap, first) {
+      var ks = kids(parent), stagger = slot < NODE_W;
+      ks.forEach(function(k, i) {
+        k.x = Math.round(parent.x + slot * (i - (ks.length - 1) / 2));
+        k.y = Math.round(parent.y + dirY * (gap + (stagger && (first + i) % 2 ? STEP : 0)));
+        k.residualDir = dirY > 0 ? 'bottom' : 'top';
+      });
+    }
+
+    /* indicators in a column left (dirX -1) or right (+1) of their factor */
+    function fanCol(parent, dirX, step) {
+      var ks = kids(parent);
+      ks.forEach(function(k, i) {
+        k.x = Math.round(parent.x + dirX * SIDE);
+        k.y = Math.round(parent.y + step * (i - (ks.length - 1) / 2));
+        k.residualDir = dirX > 0 ? 'right' : 'left';
+      });
+    }
+
+    function meanX(ids) {
+      var s = 0;
+      ids.forEach(function(nid){ s += nodesById[nid].x; });
+      return Math.round(s / ids.length);
+    }
+
+    /* push the nodes of a row apart until none are closer than minDist */
+    function spread(row, minDist) {
+      row.sort(function(a, b){ return a.x - b.x; });
+      for (var i = 1; i < row.length; i++)
+        if (row[i].x < row[i-1].x + minDist) row[i].x = row[i-1].x + minDist;
+    }
+
+    if (!hasRegression) {
+      /* ── top to bottom ── */
+      var base = byLayer[last];
+      var upperKids = false;
+      for (li = 0; li < last; li++) if (byLayer[li].some(hasKids)) upperKids = true;
+      var rows = numLayers + (base.some(hasKids) ? 1 : 0) + (general.length ? 1 : 0) + (upperKids ? 1 : 0);
+      var rowGap = rows > 1 ? Math.min(100, (H - 110) / (rows - 1)) : 0;
+      var y0 = (H - rowGap * (rows - 1)) / 2 + (upperKids ? rowGap : 0);
+      var baseY = y0 + rowGap * last;
+
+      /* bottom row of factors: each gets room for its indicators */
+      var units = base.map(function(n){ return Math.max(kids(n).length, 1.3); });
+      var sum = 0;
+      units.forEach(function(u){ sum += u; });
+      var slot = Math.max(40, Math.min(SLOT, (W - 8) / (sum || 1)));
+      var x = (W - slot * sum) / 2, placed = 0;
+      base.forEach(function(n, i) {
+        n.x = Math.round(x + units[i] * slot / 2);
+        n.y = Math.round(baseY);
+        x += units[i] * slot;
+        fanRow(n, 1, slot, rowGap, placed);
+        placed += kids(n).length;
+      });
+
+      /* rows above: each factor centred over the factors below it */
+      for (li = last - 1; li >= 0; li--) {
+        byLayer[li].forEach(function(n) {
+          n.x = meanX(out[n.id]);
+          n.y = Math.round(y0 + rowGap * li);
+        });
+        spread(byLayer[li], 110);
+        byLayer[li].forEach(function(n){ fanRow(n, -1, SLOT, rowGap, 0); });
+      }
+
+      /* general factors: below the indicators, centred under their own */
+      var generalIds = {};
+      general.forEach(function(n) {
+        generalIds[n.id] = true;
+        var targets = [];
+        model.edges.forEach(function(e){ if (e.type === 'loading' && e.from === n.id && nodesById[e.to]) targets.push(e.to); });
+        n.x = meanX(targets);
+        n.y = Math.round(baseY + rowGap * 2 + (slot < NODE_W ? STEP : 0));
+      });
+      spread(general, 110);
+      /* their indicators have paths on both sides: leave those error terms alone */
+      model.nodes.forEach(function(n) {
+        if (indicatorOf[n.id] === undefined) return;
+        if (loaders[n.id].some(function(l){ return generalIds[l]; })) n.residualDir = before[n.id].residualDir;
+      });
+
     } else {
-      /* Causal flow left-to-right by layer. Endpoint layers (sources/sinks,
-         e.g. X and Y in a mediation model) sit on a baseline; interior layers
-         (mediators) are elevated above it, so a chain like X->M->Y doesn't
-         collapse onto one flat, hard-to-read line and there's room for a
-         direct X->Y edge to pass below without crossing through M. */
-      var colGap = (W - 2 * marginX) / (numLayers - 1 || 1);
-      var baselineY = Math.round(H * 0.65);
-      var elevatedY = Math.round(H * 0.30);
-      var bandHalf  = Math.round(H * 0.13);
-      byLayer.forEach(function(nodesInLayer, li2) {
-        var x = Math.round(marginX + colGap * li2);
-        var isInterior = numLayers >= 3 && li2 > 0 && li2 < numLayers - 1;
-        var centerY = isInterior ? elevatedY : baselineY;
-        var n = nodesInLayer.length;
-        nodesInLayer.forEach(function(node, i) {
-          node.x = x;
-          node.y = (n === 1) ? centerY
-                              : Math.round(centerY - bandHalf + (2 * bandHalf) * (i + 1) / (n + 1));
+      /* ── left to right ── */
+      var marginL = byLayer[0].some(hasKids)    ? 45 + ERR_SIDE + SIDE : 60;
+      var marginR = byLayer[last].some(hasKids) ? 45 + ERR_SIDE + SIDE : 60;
+      var colGap = last > 0 ? (W - marginL - marginR) / last : 0;
+
+      byLayer.forEach(function(l, li2) {
+        var side = l.map(function(n, i) {
+          return li2 === 0 ? 'left' : li2 === last ? 'right' : (i < l.length / 2 ? 'top' : 'bottom');
+        });
+        /* With a single layer in between, its rows of indicators lie above
+           and below everything else and may use the full width; otherwise
+           they have to stay clear of the neighbouring columns. */
+        var maxKids = Math.max.apply(null, l.map(function(n){ return kids(n).length; }));
+        var fanWidth = numLayers === 3 ? W - 40 : colGap - 10;
+        var slotMid = Math.max(40, Math.min(SLOT, fanWidth / Math.max(1, maxKids)));
+        /* height each node needs, and where the node sits within it */
+        var gap = 36, total = gap * (l.length - 1);
+        var ext = l.map(function(n, i) {
+          var k = kids(n).length;
+          var h = (side[i] === 'top' || side[i] === 'bottom')
+                ? (k ? 32 + FAN_GAP + ERR_FAN + (slotMid < NODE_W && k > 1 ? STEP : 0) : 64)
+                : Math.max(k * STEP, 64);
+          total += h;
+          return h;
+        });
+        var scale = Math.min(1, (H - 16) / total);
+        var offset = [], cursor = 0;
+        l.forEach(function(n, i) {
+          var h = ext[i] * scale;
+          offset.push(side[i] === 'top' ? cursor + h - 32 : side[i] === 'bottom' ? cursor + 32 : cursor + h / 2);
+          cursor += h + gap * scale;
+        });
+        total *= scale;
+
+        /* A layer of one node: endpoints (e.g. X and Y of a mediation model)
+           sit on a baseline and the layers in between above it, so that a
+           direct X->Y path can pass below the mediator. Otherwise centred. */
+        var top = H / 2 - total / 2;
+        if (l.length === 1 && numLayers >= 3)
+          top = Math.round(H * (li2 > 0 && li2 < last ? 0.30 : 0.65)) - offset[0];
+        top = Math.max(8, Math.min(top, H - 8 - total));
+
+        l.forEach(function(n, i) {
+          n.x = last > 0 ? Math.round(marginL + colGap * li2) : Math.round(W / 2);
+          n.y = Math.round(top + offset[i]);
+          if (side[i] === 'left' || side[i] === 'right')
+            fanCol(n, side[i] === 'left' ? -1 : 1, Math.min(STEP, ext[i] * scale / Math.max(1, kids(n).length)));
+          else
+            fanRow(n, side[i] === 'top' ? -1 : 1, slotMid, Math.max(60, FAN_GAP * scale), 0);
         });
       });
     }
 
-    /* fan each latent's own pure indicators in a tidy row below it */
-    var indicatorsByParent = {};
-    model.nodes.forEach(function(n) {
-      var parent = indicatorOf[n.id];
-      if (parent !== undefined) (indicatorsByParent[parent] = indicatorsByParent[parent] || []).push(n);
-    });
-    Object.keys(indicatorsByParent).forEach(function(parentId) {
-      var parent = nodesById[parentId];
-      if (!parent) return;
-      var kids = indicatorsByParent[parentId];
-      var gapX = 82, gapY = 92;
-      var startX = parent.x - gapX * (kids.length - 1) / 2;
-      kids.forEach(function(k, i) {
-        k.x = Math.round(startX + gapX * i);
-        k.y = Math.round(parent.y + gapY);
-      });
+    /* unconnected nodes: out of the way, along the bottom */
+    var looseCols = Math.max(1, Math.floor((W - 45) / 90));
+    loose.forEach(function(n, i) {
+      n.x = 60 + (i % looseCols) * 90;
+      n.y = H - 40 - Math.floor(i / looseCols) * 45;
     });
 
+    /* error terms of the core nodes: the side with the fewest paths, counting
+       each path towards the side its other end lies on */
+    core.forEach(function(n) {
+      if (!isEndogenous(n.id)) return;
+      var score = {top:0, bottom:0, left:0, right:0};
+      model.edges.forEach(function(e) {
+        if (e.type === 'covariance' || e.from === e.to) return;
+        var o = e.from === n.id ? nodesById[e.to] : e.to === n.id ? nodesById[e.from] : null;
+        if (!o) return;
+        var dx = o.x - n.x, dy = o.y - n.y;
+        score[Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'bottom' : 'top')]++;
+      });
+      /* a side where the error term would land on another node is no good either */
+      var reach = n.type === 'observed' ? 60 : 72;
+      var at = {top:[0,-reach], bottom:[0,reach], left:[-reach,0], right:[reach,0]};
+      model.nodes.forEach(function(m) {
+        if (m === n) return;
+        for (var d in at)
+          if (Math.abs(m.x - n.x - at[d][0]) < 50 && Math.abs(m.y - n.y - at[d][1]) < 40) score[d] += 2;
+      });
+      var best = 'top';
+      ['bottom', 'left', 'right'].forEach(function(d){ if (score[d] < score[best]) best = d; });
+      n.residualDir = best;
+    });
+
+    /* Pressing Auto Layout again on an already laid-out diagram changes
+       nothing; keep the earlier snapshot then, so Undo Layout still has
+       something to restore. */
+    var changed = model.nodes.some(function(n) {
+      var b = before[n.id];
+      return n.x !== b.x || n.y !== b.y || n.residualDir !== b.residualDir;
+    });
+    if (changed) model.prevLayout = before;
+
+    saveNow(); render();
+  }
+
+  /* Put nodes (and their error terms) back where they were before the last
+     Auto Layout. Nodes added since then have no saved state and stay as
+     they are. */
+  function undoLayout() {
+    var prev = model.prevLayout; if (!prev) return;
+    model.nodes.forEach(function(n) {
+      var p = prev[n.id]; if (!p) return;
+      n.x = p.x; n.y = p.y;
+      if (p.residualDir) n.residualDir = p.residualDir; else delete n.residualDir;
+    });
+    delete model.prevLayout;
     saveNow(); render();
   }
 
@@ -743,6 +1060,7 @@
     if (type==='node') {
       model.nodes=model.nodes.filter(function(n){return n.id!==id;});
       model.edges=model.edges.filter(function(e){return e.from!==id&&e.to!==id;});
+      delete selNodes[id];
     } else {
       model.edges=model.edges.filter(function(e){return e.id!==id;});
     }
@@ -756,9 +1074,19 @@
     evt.stopPropagation();
     if (evt.button!==0||pending) return;
     var id=this.getAttribute('data-id'), n=findNode(id); if (!n) return;
+    /* shift-click adds a node to the selection or takes it out */
+    if (evt.shiftKey) {
+      if (selNodes[id]) delete selNodes[id]; else selNodes[id]=true;
+      selId=null; selType=null; render(); return;
+    }
+    /* dragging a node of a multiple selection moves the whole selection */
+    if (!selNodes[id]) { selNodes={}; selNodes[id]=true; }
     var pt=svgPt(evt);
-    dragging={nodeId:id,ox:pt.x-n.x,oy:pt.y-n.y};
-    selId=id; selType='node'; render();
+    dragging=Object.keys(selNodes).map(function(k){return findNode(k);})
+      .filter(function(m){return m;})
+      .map(function(m){return {node:m,ox:pt.x-m.x,oy:pt.y-m.y};});
+    if (selCount()>1) { selId=null; selType=null; } else { selId=id; selType='node'; }
+    render();
   }
 
   function onNodeClick(evt) {
@@ -769,6 +1097,9 @@
       addEdge(pending.fromId,id,pending.edgeType);
       pending=null; svg.classList.remove('pending'); return;
     }
+    /* selection was already settled on mousedown */
+    if (evt.shiftKey||selCount()>1) return;
+    selNodes={}; selNodes[id]=true;
     selId=id; selType='node'; render();
   }
 
@@ -786,6 +1117,7 @@
     document.getElementById('ctxAddLoading').style.display = (n&&n.type==='latent') ? '' : 'none';
     ctxNode.style.left=evt.clientX+'px'; ctxNode.style.top=evt.clientY+'px';
     ctxNode.classList.remove('hidden'); ctxEdge.classList.add('hidden');
+    selNodes={}; selNodes[id]=true;
     selId=id; selType='node'; render();
   }
 
@@ -814,6 +1146,7 @@
     evt.stopPropagation();
     if (evt.button!==0) return;
     if (pending){pending=null;svg.classList.remove('pending');render();return;}
+    selNodes={};
     selId=this.getAttribute('data-id'); selType='edge'; render();
   }
 
@@ -827,28 +1160,55 @@
     ctxEdge._cx=evt.clientX; ctxEdge._cy=evt.clientY;
     ctxEdge.style.left=evt.clientX+'px'; ctxEdge.style.top=evt.clientY+'px';
     ctxEdge.classList.remove('hidden'); ctxNode.classList.add('hidden');
+    selNodes={};
     selId=id; selType='edge'; render();
   }
 
   /* ── canvas events ──────────────────────────────────────── */
 
+  /* Dragging on the empty canvas draws a selection rectangle (nodes stop
+     the event, so this only starts off a node). */
+  svg.addEventListener('mousedown', function(evt) {
+    suppressClick=false;
+    if (evt.button!==0||pending) return;
+    var pt=svgPt(evt);
+    marquee={x0:pt.x,y0:pt.y,x1:pt.x,y1:pt.y};
+  });
+
   svg.addEventListener('mousemove', function(evt) {
     if (dragging) {
-      var pt=svgPt(evt), n=findNode(dragging.nodeId);
-      if (n){n.x=pt.x-dragging.ox;n.y=pt.y-dragging.oy;} render();
+      var pt=svgPt(evt);
+      dragging.forEach(function(d){d.node.x=pt.x-d.ox;d.node.y=pt.y-d.oy;});
+      render();
+    } else if (marquee) {
+      var pt3=svgPt(evt); marquee.x1=pt3.x; marquee.y1=pt3.y; render();
     } else if (pending) {
       var pt2=svgPt(evt); mouseX=pt2.x; mouseY=pt2.y; render();
     }
   });
 
-  svg.addEventListener('mouseup', function() {
+  /* on the document, so that a drag released outside the canvas ends too */
+  document.addEventListener('mouseup', function() {
     if (dragging) { saveLater(); dragging=null; }
+    if (marquee) {
+      var m=marquee; marquee=null;
+      /* anything smaller is a plain click, handled below */
+      if (Math.abs(m.x1-m.x0)>4||Math.abs(m.y1-m.y0)>4) {
+        var xa=Math.min(m.x0,m.x1), xb=Math.max(m.x0,m.x1), ya=Math.min(m.y0,m.y1), yb=Math.max(m.y0,m.y1);
+        selNodes={};
+        model.nodes.forEach(function(n){ if (n.x>=xa&&n.x<=xb&&n.y>=ya&&n.y<=yb) selNodes[n.id]=true; });
+        selId=null; selType=null;
+        suppressClick=true;
+      }
+      render();
+    }
   });
 
   svg.addEventListener('click', function(evt) {
     if (evt.button!==0) return;
+    if (suppressClick){suppressClick=false;return;}
     if (pending){pending=null;svg.classList.remove('pending');render();return;}
-    selId=null;selType=null;
+    selId=null;selType=null;selNodes={};
     ctxNode.classList.add('hidden');ctxEdge.classList.add('hidden');render();
   });
 
@@ -903,7 +1263,9 @@
   function openConstraint(eid, cx, cy) {
     var edge=model.edges.find(function(e){return e.id===eid;}); if (!edge) return;
     constraintPopup._eid=eid;
-    constraintInput.value = (edge.constraint!=null) ? edge.constraint : '';
+    /* An unconstrained path opens with a real 0 (not a placeholder), so that
+       pressing OK fixes the path to the value shown. */
+    constraintInput.value = (edge.constraint!=null&&edge.constraint!=='') ? edge.constraint : '0';
     constraintError.style.display='none'; constraintInput.style.borderColor='';
     /* Position near click, clamp to viewport */
     var pw=200, ph=110;
@@ -916,11 +1278,13 @@
   function closeConstraint(save) {
     if (save) {
       var val=constraintInput.value.trim();
-      if (val!==''&&!isFinite(parseFloat(val))) {
+      /* An empty value is rejected too: a constraint is removed from the
+         context menu, not by clearing this field. */
+      if (!isFinite(parseFloat(val))) {
         constraintError.style.display='block'; constraintInput.style.borderColor='#c62828'; return;
       }
       var edge=model.edges.find(function(e){return e.id===constraintPopup._eid;});
-      if (edge) { edge.constraint=val===''?null:String(parseFloat(val)); saveNow(); render(); }
+      if (edge) { edge.constraint=String(parseFloat(val)); saveNow(); render(); }
     }
     constraintError.style.display='none'; constraintInput.style.borderColor='';
     constraintPopup.classList.add('hidden');
@@ -955,6 +1319,98 @@
   /* ── toolbar ────────────────────────────────────────────── */
 
   document.getElementById('btnLayout').addEventListener('click', autoLayout);
+  btnUndoLayout.addEventListener('click', undoLayout);
+
+  /* ── copy as image ──────────────────────────────────────── */
+
+  /* The diagram as a standalone SVG document, cropped to its content and
+     without anything that belongs to the editor (selection, hit areas, hint). */
+  function diagramSvg() {
+    var keep={selId:selId,selType:selType,selNodes:selNodes};
+    selId=null; selType=null; selNodes={};
+    render();
+    var clone=svg.cloneNode(true);
+    selId=keep.selId; selType=keep.selType; selNodes=keep.selNodes;
+    render();
+
+    var drop=clone.querySelectorAll('.edge-preview, .marquee, .canvas-hint, [stroke=\"transparent\"]');
+    for (var i=0;i<drop.length;i++) drop[i].parentNode.removeChild(drop[i]);
+
+    /* bounding box of the nodes, error terms and arcs, measured on the live canvas */
+    var x0=Infinity, y0=Infinity, x1=-Infinity, y1=-Infinity;
+    var parts=svg.querySelectorAll('g.node, g.edge');
+    for (var j=0;j<parts.length;j++) {
+      var b=parts[j].getBBox();
+      if (!b.width&&!b.height) continue;
+      x0=Math.min(x0,b.x); y0=Math.min(y0,b.y); x1=Math.max(x1,b.x+b.width); y1=Math.max(y1,b.y+b.height);
+    }
+    if (x0===Infinity) { x0=0; y0=0; x1=CANVAS_W; y1=CANVAS_H; }
+    var pad=14, w=Math.ceil(x1-x0+2*pad), h=Math.ceil(y1-y0+2*pad);
+    clone.removeAttribute('id'); clone.removeAttribute('style');
+    clone.setAttribute('viewBox',(x0-pad)+' '+(y0-pad)+' '+w+' '+h);
+    clone.setAttribute('width',w); clone.setAttribute('height',h);
+    var bg=mkEl('rect',{x:x0-pad,y:y0-pad,width:w,height:h,fill:'#fff'});
+    clone.insertBefore(bg, clone.firstChild);
+    return {text:new XMLSerializer().serializeToString(clone), width:w, height:h};
+  }
+
+  /* PNG of the diagram at twice the screen resolution */
+  function diagramPng() {
+    return new Promise(function(resolve, reject) {
+      var d=diagramSvg(), img=new Image(), scale=2;
+      img.onload=function() {
+        var c=document.createElement('canvas');
+        c.width=d.width*scale; c.height=d.height*scale;
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        c.toBlob(function(blob){ if (blob) resolve(blob); else reject(new Error('no image')); },'image/png');
+      };
+      img.onerror=function(){ reject(new Error('could not render the diagram')); };
+      img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(d.text);
+    });
+  }
+
+  var btnCopyImage=document.getElementById('btnCopyImage');
+  var copyLabel=btnCopyImage.textContent, copyTimer=null;
+  function copyFeedback(text) {
+    btnCopyImage.textContent=text;
+    if (copyTimer) clearTimeout(copyTimer);
+    copyTimer=setTimeout(function(){ btnCopyImage.textContent=copyLabel; copyTimer=null; },1800);
+  }
+
+  /* Where the clipboard API is not available to this page, copy an <img> of
+     the picture out of a temporary selection instead. */
+  function copyBySelection(blob) {
+    return new Promise(function(resolve, reject) {
+      var reader=new FileReader();
+      reader.onerror=function(){ reject(reader.error); };
+      reader.onload=function() {
+        var holder=document.createElement('div');
+        holder.contentEditable='true';
+        holder.style.cssText='position:fixed;left:-9999px;top:0;';
+        var img=document.createElement('img'); img.src=reader.result;
+        holder.appendChild(img); document.body.appendChild(holder);
+        var range=document.createRange(); range.selectNode(img);
+        var sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+        var ok=false;
+        try { ok=document.execCommand('copy'); } catch(e) {}
+        sel.removeAllRanges(); document.body.removeChild(holder);
+        if (ok) resolve(); else reject(new Error('copy refused'));
+      };
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  btnCopyImage.addEventListener('click', function() {
+    var png=diagramPng();
+    var done;
+    try {
+      /* handed over as a promise, so that the write starts within the click */
+      done=navigator.clipboard.write([new ClipboardItem({'image/png':png})]);
+    } catch(e) { done=Promise.reject(e); }
+    done.catch(function(){ return png.then(copyBySelection); })
+        .then(function(){ copyFeedback(%%LABEL_COPIED%%); },
+              function(){ copyFeedback(%%LABEL_COPY_FAILED%%); });
+  });
 
   btnEst.addEventListener('click', function() {
     showEst = !showEst;
