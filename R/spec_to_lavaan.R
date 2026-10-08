@@ -75,5 +75,68 @@ spec_to_lavaan <- function(spec) {
     lines <- c(lines, covariances)
 
     if (length(lines) == 0) return(NULL)
-    list(syntax = paste(lines, collapse = "\n"), safeToLabel = safeToLabel, labelToSafe = labelToSafe)
+
+    undrawn <- undrawn_covariances(paste(lines, collapse = "\n"))
+    lines <- c(lines, undrawn$lines)
+
+    list(
+        syntax       = paste(lines, collapse = "\n"),
+        safeToLabel  = safeToLabel,
+        labelToSafe  = labelToSafe,
+        uncorrelated = lapply(undrawn$uncorrelated, function(pair)
+            vapply(pair, function(v)
+                if (!is.null(safeToLabel[[v]])) safeToLabel[[v]] else v,
+                character(1), USE.NAMES = FALSE))
+    )
+}
+
+# Covariances that are not drawn in the diagram but that lavaan::sem() would
+# add on its own (between exogenous latent variables, and between the
+# residuals of outcomes that predict nothing else). Each is returned as a
+# `lhs ~~ 0*rhs` line, so the syntax alone, run through a default sem() call,
+# fits the model as drawn. lavaan itself is asked which covariances it would
+# add, rather than re-deriving its rules here: a pair missed by a hand-written
+# rule would silently be estimated.
+#
+# `uncorrelated` lists the pairs of exogenous latent variables among them,
+# which the caller reports to the user.
+undrawn_covariances <- function(syntax) {
+    none <- list(lines = character(0), uncorrelated = list())
+
+    # Same auto.* defaults as lavaan::sem(). A syntax lavaan cannot parse is
+    # left as is, so that the error is reported by the fit itself.
+    pt <- tryCatch(
+        lavaan::lavaanify(
+            syntax,
+            int.ov.free     = TRUE,
+            int.lv.free     = FALSE,
+            auto.fix.first  = TRUE,
+            auto.fix.single = TRUE,
+            auto.var        = TRUE,
+            auto.cov.lv.x   = TRUE,
+            auto.cov.y      = TRUE,
+            auto.th         = TRUE,
+            auto.delta      = TRUE,
+            auto.efa        = TRUE,
+            fixed.x         = TRUE,
+            warn            = FALSE
+        ),
+        error = function(e) NULL
+    )
+    if (is.null(pt)) return(none)
+
+    # exo == 1 marks covariances among observed predictors, which sem() fixes
+    # to their sample values (fixed.x) instead of estimating; those stay.
+    auto <- pt[pt$op == "~~" & pt$lhs != pt$rhs & pt$user == 0 & pt$exo == 0, , drop = FALSE]
+    if (nrow(auto) == 0) return(none)
+
+    latent    <- unique(pt$lhs[pt$op == "=~"])
+    dependent <- unique(c(pt$lhs[pt$op == "~"], pt$rhs[pt$op == "=~"]))
+    exoLatent <- setdiff(latent, dependent)
+    isUncorrelated <- auto$lhs %in% exoLatent & auto$rhs %in% exoLatent
+
+    list(
+        lines        = paste0(auto$lhs, " ~~ 0*", auto$rhs),
+        uncorrelated = Map(c, auto$lhs[isUncorrelated], auto$rhs[isUncorrelated], USE.NAMES = FALSE)
+    )
 }
