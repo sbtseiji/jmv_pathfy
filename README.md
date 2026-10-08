@@ -7,13 +7,14 @@ A [jamovi](https://www.jamovi.org/) module for structural equation modeling with
 ## Features
 
 - **Graphical editor** — drag nodes, add paths via right-click context menu
+- **What you draw is what is fitted** — a covariance is estimated only if its path is drawn
 - **Model types** — CFA, path models, full SEM, higher-order factors, bifactor models
 - **Non-ASCII variable names** — latent variable names in any language (including Japanese)
 - **Estimates overlay** — display standardized or unstandardized coefficients on the diagram
 - **Error nodes** — residuals shown as `e1`/`d1` nodes with repositioning and error covariance support
 - **Parameter constraints** — fix any path to a specific value (e.g., `0` for orthogonality)
 - **Fit indices** — CFI, TLI, RMSEA, SRMR, AIC, BIC, χ² test
-- **Additional output** — modification indices, residual correlation matrix, lavaan model syntax
+- **Additional output** — modification indices, residual correlation matrix, a ready-to-run R script for lavaan
 
 ---
 
@@ -39,6 +40,9 @@ Download the latest `.jmo` file from the [Releases](../../releases) page, then i
    - **Add Regression** — regression or structural path (`~`)
    - **Add Covariance** — double-headed arrow (`~~`)
 4. **View estimates** — click the **Estimates** button to overlay coefficients on the diagram
+5. **Tidy up** — click **Auto Layout** to arrange the diagram: factors in rows with their indicators below for measurement models, in causal order from left to right when there are regressions. **Undo Layout**, which appears next to it afterwards, puts the nodes (and error terms) back where they were before the last Auto Layout
+6. **Move several nodes at once** — drag over the empty canvas to select the nodes inside the rectangle, or shift-click nodes to add them to or remove them from the selection; dragging any selected node moves them all
+7. **Use the diagram elsewhere** — click **Copy Image** to put a picture of the diagram (PNG, cropped to the diagram) on the clipboard. The diagram is also included when the results are exported from jamovi (e.g. to PDF)
 
 ### Edge types
 
@@ -48,6 +52,16 @@ Download the latest `.jmo` file from the [Releases](../../releases) page, then i
 | Solid arrow | Regression / structural path | `~` |
 | Curved double arrow | Covariance | `~~` |
 | Blue line | **Fixed parameter** | e.g. `0*` |
+
+### Covariances
+
+Only the covariances drawn in the diagram are estimated. lavaan by default correlates exogenous latent variables, and the residuals of outcomes that predict nothing else, even when the model syntax does not mention them; pathfy fixes each such covariance that is not drawn to zero, and writes it into the model syntax as `A ~~ 0*B`.
+
+- Factors in a CFA are therefore **uncorrelated unless you draw a covariance path** between them (right-click a factor → **Add Covariance**)
+- When latent variables are left uncorrelated this way, a notice below the diagram lists the pairs, e.g. *"No covariance path is drawn between the following latent variables, so they are estimated as uncorrelated: F1 <-> F2"*. Zero residual covariances are not reported
+- Covariances among observed predictors are not affected: as in lavaan, they are fixed to their sample values
+
+> **Changed in 1.2.0.** Earlier versions let lavaan add these covariances. A file saved with an earlier version in which such covariances were not drawn gives different results when reopened in 1.2.0 or later; draw the covariance paths to get the earlier model back.
 
 ### Error nodes
 
@@ -61,13 +75,13 @@ When estimates are displayed, residuals appear as small circles (`e1`, `e2`, …
 To constrain a path to a specific value (e.g., orthogonal factors in a bifactor model):
 
 1. Right-click the path → **Fix value...**
-2. Enter the value (e.g., `0`) and click OK
+2. Enter the value and click OK. The field opens with `0`, so clicking OK right away fixes the path to zero; an empty field is not accepted
 3. The path turns blue to indicate it is constrained
 4. To remove the constraint: right-click → **Remove constraint**
 
 ### Bifactor model example
 
-Specify the model by adding loading edges, then fix all inter-factor covariances to zero:
+Specify the model by adding loading edges only. Because no covariance is drawn between the factors, they are all fixed to be uncorrelated:
 
 ```
 g  =~ x1 + x2 + x3 + x4 + x5 + x6
@@ -103,7 +117,7 @@ s1 ~~ 0*s2
 |--------|-------------|
 | Residual covariances | Residual correlation matrix; highlights cells above the threshold |
 | Modification indices | Ranked list of parameters that would most improve fit |
-| Show lavaan syntax | The exact model syntax passed to lavaan (with any proxy name mappings noted) |
+| lavaan syntax | An R script that reproduces the analysis: the model syntax and the `sem()` call with the estimator, missing-data handling, and identification constraint in use (with any proxy name mappings noted). The model syntax on its own, passed to a default `sem()` call, specifies the same model. The script runs as is in R once the data are in a data frame named `data`, and inside jamovi when pasted into the editor of the Rj module (in Rj+, add the variables used in the model to *Variables* first) |
 
 ---
 
