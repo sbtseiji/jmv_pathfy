@@ -192,7 +192,6 @@ children:
                 children:
                   - type: TextBox
                     name: modIndicesThreshold
-                    label: Show values above
                     format: number
                     enable: (modIndices)
       - type: LayoutBox
