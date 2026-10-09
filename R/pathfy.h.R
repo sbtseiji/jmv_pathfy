@@ -495,21 +495,32 @@ PathfyResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="var", 
                         `title`="", 
                         `type`="text"))))
-            self$add(jmvcore::Html$new(
-                options=options,
-                name="lavaanCode",
-                title="lavaan Model Syntax",
-                visible="(showSyntax)",
-                clearWith=list(
-                    "vars",
-                    "modelSpec",
-                    "estimator",
-                    "missing",
-                    "identification",
-                    "latentVars",
-                    "std",
-                    "ci",
-                    "ciWidth")))}))
+            self$add(R6::R6Class(
+                inherit = jmvcore::Group,
+                active = list(
+                    script = function() private$.items[["script"]]),
+                private = list(),
+                public=list(
+                    initialize=function(options) {
+                        super$initialize(
+                            options=options,
+                            name="lavaanCode",
+                            title="lavaan R Script")
+                        self$add(jmvcore::Preformatted$new(
+                            options=options,
+                            name="script",
+                            title="",
+                            visible="(showSyntax)",
+                            clearWith=list(
+                                "vars",
+                                "modelSpec",
+                                "estimator",
+                                "missing",
+                                "identification",
+                                "latentVars",
+                                "std",
+                                "ci",
+                                "ciWidth")))}))$new(options=options))}))
 
 PathfyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "PathfyBase",
@@ -569,7 +580,7 @@ PathfyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$parameters} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$modIndices} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$residCov} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$lavaanCode} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$lavaanCode$script} \tab \tab \tab \tab \tab a preformatted \cr
 #' }
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:

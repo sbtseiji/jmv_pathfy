@@ -322,14 +322,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                     "parameterEstimates(fit, standardized = ", std,
                     ", ci = TRUE, level = ", self$options$ciWidth / 100, ")"))
             full_text <- paste0(header, paste(script, collapse = "\n"))
-            escaped <- gsub("&", "&amp;", full_text, fixed = TRUE)
-            escaped <- gsub("<", "&lt;",  escaped,   fixed = TRUE)
-            self$results$lavaanCode$setContent(
-                paste0('<pre style="font-family:monospace;font-size:13px;',
-                       'padding:8px;background:#f8f8f8;',
-                       'border:1px solid #ddd;border-radius:4px;">',
-                       escaped, '</pre>')
-            )
+            self$results$lavaanCode$script$setContent(full_text)
         },
 
         # Model fit tables (CFA-style: separate test and fit measures tables)

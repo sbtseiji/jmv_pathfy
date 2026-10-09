@@ -118,7 +118,7 @@ s1 ~~ 0*s2
 |--------|-------------|
 | Residual covariances | Residual correlation matrix; highlights cells above the threshold |
 | Modification indices | Ranked list of parameters that would most improve fit |
-| lavaan syntax | An R script that reproduces the analysis: the model syntax and the `sem()` call with the estimator, missing-data handling, and identification constraint in use (with any proxy name mappings noted). The model syntax on its own, passed to a default `sem()` call, specifies the same model. The script runs as is in R once the data are in a data frame named `data`, and inside jamovi when pasted into the editor of the Rj module (in Rj+, add the variables used in the model to *Variables* first) |
+| lavaan syntax | An R script that reproduces the analysis: the model syntax and the `sem()` call with the estimator, missing-data handling, and identification constraint in use (with any proxy name mappings noted). The model syntax on its own, passed to a default `sem()` call, specifies the same model. The script runs as is in R once the data are in a data frame named `data`, and inside jamovi when pasted into the editor of the Rj module (in Rj+, add the variables used in the model to *Variables* first). To copy the script from the results, right-click it and choose **Syntax** → **Copy** (*Group* would copy the heading along with it). The blank lines that the copy puts between the lines are harmless |
 
 ---
 

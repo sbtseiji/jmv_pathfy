@@ -206,17 +206,22 @@ items:
           type: text
 
     - name: lavaanCode
-      title: lavaan Model Syntax
-      type: Html
+      title: lavaan R Script
+      type: Group
       visible: (showSyntax)
-      clearWith:
-        - vars
-        - modelSpec
-        - estimator
-        - missing
-        - identification
-        - latentVars
-        - std
-        - ci
-        - ciWidth
+      items:
+        - name: script
+          title: ''
+          type: Preformatted
+          visible: (showSyntax)
+          clearWith:
+            - vars
+            - modelSpec
+            - estimator
+            - missing
+            - identification
+            - latentVars
+            - std
+            - ci
+            - ciWidth
 ...
