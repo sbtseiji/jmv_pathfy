@@ -1,26 +1,21 @@
-- name: lavaan
-  type: article
-  author:
-    - family: Rosseel
-      given: Y.
-  year: 2012
-  title: "lavaan: An R Package for Structural Equation Modeling"
-  journal: Journal of Statistical Software
-  volume: 48
-  issue: 2
-  pages: 1--36
-  url: https://doi.org/10.18637/jss.v048.i02
+---
+refs:
+    lavaan:
+        type: 'article'
+        author: Rosseel, Y.
+        year: 2012
+        title: 'lavaan: An R Package for Structural Equation Modeling'
+        publisher: Journal of Statistical Software
+        volume: 48
+        issue: 2
+        pages: 1-36
+        url: https://doi.org/10.18637/jss.v048.i02
 
-- name: lavaanPkg
-  type: misc
-  author:
-    - family: Rosseel
-      given: Y.
-    - family: Jorgensen
-      given: T. D.
-    - family: Rockwood
-      given: N.
-  year: 2025
-  title: "lavaan: Latent Variable Analysis"
-  note: R package
-  url: https://CRAN.R-project.org/package=lavaan
+    lavaanPkg:
+        type: 'software'
+        author: Rosseel, Y., Jorgensen, T. D., & Rockwood, N.
+        year: 2025
+        title: 'lavaan: Latent Variable Analysis'
+        publisher: '[R package]. Retrieved from https://cran.r-project.org/package=lavaan'
+        url: https://cran.r-project.org/package=lavaan
+...
