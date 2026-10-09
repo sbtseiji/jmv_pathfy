@@ -32,16 +32,18 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
 
             estimates <- NULL
 
-            # Detect FIML fallback (FIML selected but estimator doesn't support it)
-            fimlFallback <- self$options$missing == "fiml" &&
-                            !(toupper(self$options$estimator) %in% c("ML", "MLR", "MLM"))
-            canvasNote <- if (fimlFallback)
-                .("Missing data: Listwise deletion (Full Information ML is not available with this estimator)")
-            else ""
+            # Full Information ML is only available with these estimators; any
+            # other falls back to listwise deletion
+            fimlEstimators <- c("ML", "MLR")
+            estimator <- toupper(self$options$estimator)
+            missing   <- self$options$missing
+            fimlFallback <- missing == "fiml" && !(estimator %in% fimlEstimators)
+            if (fimlFallback)
+                missing <- "listwise"
 
             rendered <- FALSE
             renderNow <- function(est) {
-                private$.renderEditor(vars, modelSpec, latentVars, est, canvasNote)
+                private$.renderEditor(vars, modelSpec, latentVars, est)
                 rendered <<- TRUE
             }
 
@@ -73,13 +75,11 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                             jmvcore::reject(errMsg)
                         }
 
+                        # each is inserted above the last, so the warning comes first
+                        if (fimlFallback)
+                            private$.noteFimlFallback()
                         private$.warnUncorrelated(lavaanResult$uncorrelated)
 
-                        estimator <- toupper(self$options$estimator)
-                        missing   <- self$options$missing
-                        # FIML is only supported with ML-family estimators
-                        if (missing == "fiml" && !(estimator %in% c("ML", "MLR", "MLM")))
-                            missing <- "listwise"
                         std.lv    <- self$options$identification == "variance"
 
                         structSig <- private$.buildStructSig(
@@ -249,6 +249,18 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             notice$setContent(jmvcore::format(
                 .("No covariance path is drawn between the following latent variables, so they are estimated as uncorrelated: {pairs}"),
                 pairs = pairText))
+            self$results$insert(2, notice)
+        },
+
+        # Full Information ML was selected with an estimator that does not
+        # support it, so listwise deletion was used instead
+        .noteFimlFallback = function() {
+            notice <- jmvcore::Notice$new(
+                options = self$options,
+                name    = "fimlFallback",
+                type    = jmvcore::NoticeType$INFO
+            )
+            notice$setContent(.("Missing data: Listwise deletion (Full Information ML is not available with this estimator)"))
             self$results$insert(2, notice)
         },
 
@@ -470,7 +482,7 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         },
 
         # Render the HTML path diagram editor
-        .renderEditor = function(vars, modelSpec, latentVars = "", estimates = NULL, note = "") {
+        .renderEditor = function(vars, modelSpec, latentVars = "", estimates = NULL) {
             # Escape <, >, & so injected JSON cannot break out of <script> blocks
             jsEscape <- function(s) {
                 s <- gsub("&", "\\u0026", s, fixed = TRUE)
@@ -550,8 +562,6 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             html <- gsub("%%LABEL_EDIT_NAME%%",    htmlEscape(.("Edit variable name")),              html, fixed = TRUE)
             html <- gsub("%%LABEL_NAME_CONFLICT%%", htmlEscape(.("Name already used as observed variable.")), html, fixed = TRUE)
 
-            html <- gsub("%%CANVAS_NOTE_DISPLAY%%", if (nzchar(note)) "block" else "none", html, fixed = TRUE)
-            html <- gsub("%%CANVAS_NOTE%%",         htmlEscape(note),                       html, fixed = TRUE)
 
             self$results$diagram$setContent(html)
         }
