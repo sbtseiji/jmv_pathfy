@@ -1,24 +1,24 @@
 version: 1
 
 project:
-  name: semgui
-  website: https://github.com/sshibata/jmv_semgui
+  name: pathfy
+  website: https://github.com/sbtseiji/jmv_pathfy
   instructions: >
-    Translate the UI strings for the semgui Jamovi module (Graphical SEM).
+    Translate the UI strings for the pathfy jamovi module (Graphical SEM).
     Technical terms like "lavaan", "CFA", "SEM", "RMSEA", "CFI", "MLR", "FIML"
     should NOT be translated — keep them as-is.
     Operator symbols like "=~", "~~", "~" should be preserved.
 
 components:
-  - name: Jamovi Module
-    slug: semgui
+  - name: jamovi Module
+    slug: pathfy
     vcs: git
-    repo: https://github.com/sshibata/jmv_semgui
+    repo: https://github.com/sbtseiji/jmv_pathfy
     branch: main
     filemask: jamovi/i18n/*.po
     template: jamovi/i18n/en.po
     file_format: po
-    license: GPL-3.0-or-later
+    license: GPL-2.0-or-later
     new_base: jamovi/i18n/en.po
     manage_units: true
     push_on_commit: false
