@@ -10,135 +10,71 @@ msgstr ""
 msgid "{\"nodes\":[],\"edges\":[]}"
 msgstr ""
 
-#: Pathfy/ui[2][0][0]/ci/ciWidth.suffix
+#: R/pathfy.b.R
+msgid "{width}% CI"
+msgstr "{width}% CI"
+
+#: Pathfy/ui[3][1]/showParamTable/ci/ciWidth.suffix
 msgid "%"
 msgstr ""
 
-#: R/semgui.b.R
-msgid ""
-"← Select variables in the left panel and build your model in the path "
-"diagram editor."
-msgstr "⇐ 左パネルで変数を選択し、パス図エディタでモデルを構築してください。"
+#: Pathfy/results/parameters.columns.superTitle
+msgid "95% CI"
+msgstr "95% CI"
 
 #: package.description
-#: package/analyses/SemGui.description
+#: package/analyses/Pathfy.description
 #: Pathfy/options.description.main
 msgid ""
 "A graphical user interface for structural equation modeling. Supports CFA, "
 "path models, full SEM, higher-order factors, and bifactor models."
 msgstr "グラフィカルなパス図インターフェースによる構造方程式モデリング。CFA、パスモデル、フルSEM、高次因子モデル、Bifactorモデルに対応。"
 
-#: R/semgui.b.R
+#: Pathfy/ui[0][1]/latentVars.addButton
+msgid "Add"
+msgstr "追加"
+
+#: R/pathfy.b.R
 msgid "Add Covariance"
 msgstr "共分散を追加"
 
-msgid "Fix value..."
-msgstr "値を固定..."
-
-msgid "Fix parameter"
-msgstr "パラメータを固定"
-
-msgid "Enter a number."
-msgstr "数値を入力してください"
-
-msgid "Remove constraint"
-msgstr "制約を解除"
-
-msgid "Error above"
-msgstr "上に表示"
-
-msgid "Error below"
-msgstr "下に表示"
-
-msgid "Error left"
-msgstr "左に表示"
-
-msgid "Error right"
-msgstr "右に表示"
-
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Add Loading"
 msgstr "因子負荷を追加"
 
-#: R/semgui.b.R
-msgid "Add nodes and paths in the editor."
-msgstr "エディタでノードとパスを追加してください。"
-
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Add Regression"
 msgstr "回帰を追加"
-
-#: Pathfy/options/fitAIC.title
-msgid "AIC"
-msgstr "AIC"
-
-#: R/semgui.b.R
-msgid "Auto Layout"
-msgstr "自動配置"
-
-#: Pathfy/options/fitBIC.title
-msgid "BIC"
-msgstr "BIC"
 
 #: Pathfy/ui[4].label
 msgid "Additional Output"
 msgstr "追加の出力"
 
-msgid "Model Modification"
-msgstr "モデル修正"
+#: Pathfy/options/fitAIC.title
+#: Pathfy/results/modelFit/fitMeasures.columns.title
+msgid "AIC"
+msgstr "AIC"
 
-msgid "Model Syntax"
-msgstr "モデル構文"
+#: R/pathfy.b.R
+msgid "Auto Layout"
+msgstr "自動配置"
 
-msgid "lavaan syntax"
-msgstr "lavaanの構文"
+#: Pathfy/options/fitBIC.title
+#: Pathfy/results/modelFit/fitMeasures.columns.title
+msgid "BIC"
+msgstr "BIC"
 
-msgid "Non-ASCII variable names are replaced as above to prevent lavaan errors."
-msgstr "non-ASCII変数名はlavaan実行時のエラーを防ぐために上記のとおり置き換えています"
-
-msgid "lavaan Model Syntax"
-msgstr "lavaanモデル構文"
-
-#: Pathfy/options/modIndices.title
-msgid "Modification indices"
-msgstr "修正指数"
-
-#: Pathfy/ui[4][0][0]/modIndices/modIndicesThreshold.label
-msgid "Highlight above"
-msgstr "これ以上の値を強調"
-
-#: Pathfy/ui[4][1][0]/modIndices/modIndicesThreshold.label
-msgid "Show values above"
-msgstr "これ以上の値を表示"
-
-#: Pathfy/results/modIndices.title
-msgid "MI"
-msgstr "修正指標"
-
-msgid "EPC"
-msgstr "変化量"
-
-msgid "Modification Indices"
-msgstr "修正指数"
-
-#: Pathfy/options/residCov.title
-msgid "Residuals for observed correlation matrix"
-msgstr "相関行列の残差"
-
-#: Pathfy/results/residCov.title
-msgid "Residuals for Observed Correlation Matrix"
-msgstr "相関行列の残差"
-
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: package/analyses/SemGui.menuSubtitle
+#: package/analyses/Pathfy.menuSubtitle
 #: Pathfy/options.menuSubtitle
 msgid "CFA, Path Models, Full SEM"
 msgstr "CFA・パスモデル・フルSEM"
 
 #: Pathfy/options/fitCFI.title
+#: Pathfy/results/modelFit/fitMeasures.columns.title
 msgid "CFI"
 msgstr "CFI"
 
@@ -155,35 +91,47 @@ msgstr "信頼区間を表示"
 msgid "Constraints"
 msgstr "制約"
 
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Delete"
 msgstr "削除"
 
-#: R/semgui.b.R
-msgid "mean"
-msgstr "平均値"
-
-#: R/semgui.b.R
-msgid "var"
-msgstr "分散"
-
-#: R/semgui.b.R
+#: Pathfy/results/modelFit/test.columns.title
 msgid "df"
 msgstr "自由度"
 
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Edit variable name"
 msgstr "変数名を編集"
 
-#: R/semgui.b.R
-msgid "Name already used as observed variable."
-msgstr "顕在変数として使用中の名前です。"
+#: R/pathfy.b.R
+msgid "Enter a number."
+msgstr "数値を入力してください"
+
+#: Pathfy/results/modIndices.columns.title
+msgid "EPC"
+msgstr "変化量"
+
+#: R/pathfy.b.R
+msgid "Error above"
+msgstr "上に表示"
+
+#: R/pathfy.b.R
+msgid "Error below"
+msgstr "下に表示"
+
+#: R/pathfy.b.R
+msgid "Error left"
+msgstr "左に表示"
+
+#: R/pathfy.b.R
+msgid "Error right"
+msgstr "右に表示"
 
 #: Pathfy/results/parameters.columns.title
 msgid "Estimate"
 msgstr "推定値"
 
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Estimates"
 msgstr "推定値"
 
@@ -195,16 +143,18 @@ msgstr "推定法"
 msgid "F1"
 msgstr ""
 
-#: package/analyses/SemGui.menuGroup
+#: package/analyses/Pathfy.menuGroup
 #: Pathfy/options.menuGroup
 msgid "Factor"
 msgstr "因子分析"
 
-#: Pathfy/ui[3][1][0].label
+#: Pathfy/ui[2][1][0].label
+#: Pathfy/results/modelFit/fitMeasures.title
 msgid "Fit Indices"
 msgstr "適合度指標"
 
-#: Pathfy/ui[3][0][0].label
+#: Pathfy/ui[2][0][0].label
+#: Pathfy/results/modelFit/test.title
 msgid "Fit Tests"
 msgstr "適合度検定"
 
@@ -216,13 +166,21 @@ msgstr "因子の分散を1に固定"
 msgid "Fix first loading to 1"
 msgstr "最初の係数を1に固定"
 
+#: R/pathfy.b.R
+msgid "Fix parameter"
+msgstr "パラメータを固定"
+
+#: R/pathfy.b.R
+msgid "Fix value..."
+msgstr "値を固定..."
+
 #: Pathfy/options/missing/fiml.title
 msgid "Full Information ML"
 msgstr "完全情報最尤推定法"
 
 #: package.title
-#: package/analyses/SemGui.title
-#: package/analyses/SemGui.menuTitle
+#: package/analyses/Pathfy.title
+#: package/analyses/Pathfy.menuTitle
 #: Pathfy/options.title
 #: Pathfy/options.menuTitle
 #: Pathfy/ui.title
@@ -230,47 +188,54 @@ msgstr "完全情報最尤推定法"
 msgid "Graphical SEM"
 msgstr "グラフィカルSEM"
 
-#: Pathfy/options/showResiduals.title
-msgid "Residuals"
-msgstr "誤差項"
+#: Pathfy/options/residCovThreshold.title
+#: Pathfy/ui[4][0][0]/residCov/residCovThreshold.label
+msgid "Highlight above"
+msgstr "これ以上の値を強調"
 
-#: Pathfy/results/modelFit.columns.title
-msgid "Index"
-msgstr "指標"
+#: R/pathfy.b.R
+msgid ""
+"In jamovi: paste into the Rj editor (in Rj+, add the model's variables to "
+"'Variables' first)."
+msgstr "jamovi の場合: Rj エディタに貼り付けてください(Rj+ ではモデルで使った変数を先に「Variables」に入れます)。"
+
+#: R/pathfy.b.R
+msgid "In R: load your data set into a data frame named 'data' first."
+msgstr "R の場合: 先にデータを data という名前のデータフレームに読み込んでください。"
+
+#: R/spec_to_lavaan.R
+msgid "Invalid constraint value: '{value}' — must be a number."
+msgstr "無効な制約値: 「{value}」は数値でなければなりません。"
 
 #: Pathfy/results/parameters.columns.title
 msgid "Label"
 msgstr "ラベル"
 
+#: R/pathfy.b.R
+msgid ""
+"Latent variable '%s' has no indicators. Add at least one loading before "
+"using it in a path."
+msgstr "潜在変数「%s」に指標変数がありません。パスに使用する前に、因子負荷を少なくとも1つ追加してください。"
+
 #: Pathfy/options/latentVars.title
-#: Pathfy/ui[0][1].label
+#: Pathfy/ui[0][1][1].label
 msgid "Latent Variables"
 msgstr "潜在変数"
 
-msgid "Only continuous (numeric) variables can be used. '%s' is a categorical variable."
-msgstr "分析に使用できるのは連続変数（数値型）のみです。「%s」はカテゴリ変数です。"
-
-msgid "Missing data: Listwise deletion (Full Information ML is not available with this estimator)"
-msgstr "欠損値処理: 行全体を除外（この推定法では完全情報最尤推定法は使用できません）"
-
-msgid "Right-click a node to add paths"
-msgstr "ノードを右クリックしてパスを追加"
-
-msgid "Invalid constraint value: '{value}' — must be a number."
-msgstr "無効な制約値: 「{value}」は数値でなければなりません。"
-
-msgid "Latent variable '%s' has no indicators. Add at least one loading before using it in a path."
-msgstr "潜在変数「%s」に指標変数がありません。パスに使用する前に、因子負荷を少なくとも1つ追加してください。"
-
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "lavaan error: {message}"
 msgstr "lavaanエラー: {message}"
 
 #: Pathfy/results/lavaanCode.title
-msgid "lavaan Model Syntax"
-msgstr "lavaanモデル構文"
+msgid "lavaan R Script"
+msgstr "lavaan Rスクリプト"
+
+#: Pathfy/options/showSyntax.title
+msgid "lavaan syntax"
+msgstr "lavaanの構文"
 
 #: Pathfy/results/parameters.columns.title
+#: Pathfy/results/modIndices.columns.title
 msgid "LHS"
 msgstr "左辺"
 
@@ -278,21 +243,29 @@ msgstr "左辺"
 msgid "Listwise deletion"
 msgstr "行全体を除外"
 
-#: Pathfy/results/parameters.columns.superTitle
-msgid "95% CI"
-msgstr "95% CI"
-
-msgid "{width}% CI"
-msgstr "{width}% CI"
-
+#: Pathfy/results/modelFit/fitMeasures.columns.title
 #: Pathfy/results/parameters.columns.title
-msgid "Lower (95%CI)"
-msgstr "下限 (95%CI)"
+msgid "Lower"
+msgstr "下限"
+
+#: R/pathfy.b.R
+msgid "mean"
+msgstr "平均値"
+
+#: Pathfy/results/modIndices.columns.title
+msgid "MI"
+msgstr "修正指標"
 
 #: Pathfy/options/missing.title
 #: Pathfy/ui[1][1][0].label
 msgid "Missing Data"
 msgstr "欠損値処理"
+
+#: R/pathfy.b.R
+msgid ""
+"Missing data: Listwise deletion (Full Information ML is not available with "
+"this estimator)"
+msgstr "欠損値処理: 行全体を除外（この推定法では完全情報最尤推定法は使用できません）"
 
 #: Pathfy/options/estimator/ml.title
 msgid "ML"
@@ -306,109 +279,145 @@ msgstr "平均調整最尤法（MLM）"
 msgid "MLR (Robust)"
 msgstr "ロバスト最尤法（MLR）"
 
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Model did not converge. Check model identification."
 msgstr "モデルが収束しませんでした。識別可能性を確認してください。"
 
-#: Pathfy/ui[3].label
+#: Pathfy/ui[2].label
+#: Pathfy/results/modelFit.title
 msgid "Model Fit"
 msgstr "モデル適合度"
 
-#: Pathfy/results/modelFit.title
-msgid "Model Fit Indices"
-msgstr "モデル適合度指標"
+#: Pathfy/ui[4][0][0].label
+msgid "Model Modification"
+msgstr "モデル修正"
 
 #: Pathfy/options/modelSpec.title
 msgid "Model Specification (JSON)"
 msgstr "モデル仕様 (JSON)"
 
-#: R/semgui.b.R
-msgid "No valid paths defined."
-msgstr "有効なパスが定義されていません。"
+#: Pathfy/ui[4][1][0].label
+msgid "Model Syntax"
+msgstr "モデル構文"
+
+#: Pathfy/options/modIndices.title
+msgid "Modification indices"
+msgstr "修正指数"
+
+#: Pathfy/results/modIndices.title
+msgid "Modification Indices"
+msgstr "修正指数"
+
+#: R/pathfy.b.R
+msgid "Name already used as observed variable."
+msgstr "顕在変数として使用中の名前です。"
+
+#: R/pathfy.b.R
+msgid ""
+"No covariance path is drawn between the following latent variables, so they "
+"are estimated as uncorrelated: {pairs}"
+msgstr "次の潜在変数の間には共分散パスが描かれていないため、無相関として推定されます: {pairs}"
+
+#: R/pathfy.b.R
+msgid ""
+"No covariance path is drawn between the residuals of the following "
+"variables, so they are fixed to zero: {pairs}"
+msgstr "次の変数の残差の間には共分散パスが描かれていないため、0に固定されます: {pairs}"
+
+#: R/pathfy.b.R
+msgid "Non-ASCII variable names are replaced as above to prevent lavaan errors."
+msgstr "non-ASCII変数名はlavaan実行時のエラーを防ぐために上記のとおり置き換えています"
 
 #: Pathfy/options/vars.title
 #: Pathfy/ui[0][0].label
 msgid "Observed Variables"
 msgstr "顕在変数"
 
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "OK"
 msgstr "OK"
 
-#: Pathfy/results/parameters.columns.title
-msgid "Type"
-msgstr "種類"
+#: R/pathfy.b.R
+msgid ""
+"Only continuous (numeric) variables can be used. '%s' is a categorical "
+"variable."
+msgstr "分析に使用できるのは連続変数（数値型）のみです。「%s」はカテゴリ変数です。"
 
 #: Pathfy/ui[1].label
 msgid "Options"
 msgstr "オプション"
 
-#: Pathfy/ui[2][1][0].label
+#: Pathfy/ui[3].label
 msgid "Output"
 msgstr "出力"
 
-#: R/semgui.b.R
-msgid "p (χ²)"
-msgstr "p値 (χ²)"
-
-#: Pathfy/ui[2].label
 #: Pathfy/results/parameters.title
 msgid "Parameter Estimates"
 msgstr "パラメータ推定値"
-
-#: Pathfy/results/diagram.title
-msgid "Path Diagram Editor"
-msgstr "パス図エディタ"
-
-#: Pathfy/results/parameters.columns.title
-msgid "RHS"
-msgstr "右辺"
-
-#: Pathfy/options/fitRMSEA.title
-msgid "RMSEA"
-msgstr "RMSEA"
-
-msgid "RMSEA 90% CI"
-msgstr "RMSEA 90%信頼区間"
-
-msgid "Lower"
-msgstr "下限"
-
-msgid "Upper"
-msgstr "上限"
-
-#: R/semgui.b.R
-msgid "RMSEA 90%CI lower"
-msgstr "RMSEA 90%CI 下限"
-
-#: R/semgui.b.R
-msgid "RMSEA 90%CI upper"
-msgstr "RMSEA 90%CI 上限"
-
-#: Pathfy/results/parameters.columns.title
-msgid "SE"
-msgstr "標準誤差"
-
-#: package/analyses/SemGui.menuSubgroup
-#: Pathfy/options.menuSubgroup
-msgid "SEM"
-msgstr "SEM"
 
 #: Pathfy/options/showParamTable.title
 msgid "Parameter estimates table"
 msgstr "パラメータ推定値の表"
 
+#: Pathfy/results/diagram.title
+msgid "Path Diagram Editor"
+msgstr "パス図エディタ"
+
+#: R/pathfy.b.R
+msgid "Remove constraint"
+msgstr "制約を解除"
+
+#: Pathfy/options/showResiduals.title
+msgid "Residuals"
+msgstr "誤差項"
+
+#: Pathfy/options/residCov.title
+msgid "Residuals for observed correlation matrix"
+msgstr "相関行列の残差"
+
+#: Pathfy/results/residCov.title
+msgid "Residuals for Observed Correlation Matrix"
+msgstr "相関行列の残差"
+
+#: Pathfy/results/parameters.columns.title
+#: Pathfy/results/modIndices.columns.title
+msgid "RHS"
+msgstr "右辺"
+
+#: R/pathfy.b.R
+msgid "Right-click a node to add paths"
+msgstr "ノードを右クリックしてパスを追加"
+
+#: Pathfy/options/fitRMSEA.title
+#: Pathfy/results/modelFit/fitMeasures.columns.title
+msgid "RMSEA"
+msgstr "RMSEA"
+
+#: Pathfy/results/modelFit/fitMeasures.columns.superTitle
+msgid "RMSEA 90% CI"
+msgstr "RMSEA 90%信頼区間"
+
+#: Pathfy/results/parameters.columns.title
+msgid "SE"
+msgstr "標準誤差"
+
+#: package/analyses/Pathfy.menuSubgroup
+#: Pathfy/options.menuSubgroup
+msgid "SEM"
+msgstr "SEM"
+
+#: Pathfy/options/modIndicesThreshold.title
+msgid "Show values above"
+msgstr "これ以上の値を表示"
+
 #: Pathfy/options/fitSRMR.title
+#: Pathfy/results/modelFit/fitMeasures.columns.title
 msgid "SRMR"
 msgstr "SRMR"
 
 #: Pathfy/options/std.title
 msgid "Standardized estimates"
 msgstr "標準化推定値を表示"
-
-#: Pathfy/ui[2][0][0].label
-msgid "Statistics"
-msgstr "統計量"
 
 #: Pathfy/results/parameters.columns.title
 msgid "Std. Estimate"
@@ -418,27 +427,34 @@ msgstr "標準化推定値"
 msgid "Test statistics"
 msgstr "検定統計量"
 
-#: Pathfy/results/modelFit.columns.title
-msgid "Threshold"
-msgstr "基準値"
-
 #: Pathfy/options/fitTLI.title
+#: Pathfy/results/modelFit/fitMeasures.columns.title
 msgid "TLI"
 msgstr "TLI"
+
+#: Pathfy/results/parameters.columns.title
+#: Pathfy/results/modIndices.columns.title
+msgid "Type"
+msgstr "種類"
 
 #: Pathfy/options/estimator/uls.title
 msgid "ULS"
 msgstr "非加重最小二乗法（ULS）"
 
+#: R/pathfy.b.R
+msgid "Undo Layout"
+msgstr "配置を戻す"
+
+#: Pathfy/results/modelFit/fitMeasures.columns.title
 #: Pathfy/results/parameters.columns.title
-msgid "Upper (95%CI)"
-msgstr "上限 (95%CI)"
+msgid "Upper"
+msgstr "上限"
 
-#: Pathfy/results/modelFit.columns.title
-msgid "Value"
-msgstr "値"
+#: R/pathfy.b.R
+msgid "var"
+msgstr "分散"
 
-#: Pathfy/ui[2][0][0]/ci/ciWidth.label
+#: Pathfy/ui[3][1]/showParamTable/ci/ciWidth.label
 msgid "Width"
 msgstr "区間幅"
 
@@ -449,35 +465,3 @@ msgstr "加重最小二乗法（WLSMV）"
 #: Pathfy/options/fitChiSq.title
 msgid "χ² test"
 msgstr "χ²検定"
-
-#: Pathfy/ui[0][1]/latentVars.addButton
-msgid "Add"
-msgstr "追加"
-
-#: R/pathfy.b.R
-msgid "Undo Layout"
-msgstr "配置を戻す"
-
-#: R/pathfy.b.R
-msgid "No covariance path is drawn between the following latent variables, so they are estimated as uncorrelated: {pairs}"
-msgstr "次の潜在変数の間には共分散パスが描かれていないため、無相関として推定されます: {pairs}"
-
-#: R/pathfy.b.R
-msgid "In R: load your data set into a data frame named 'data' first."
-msgstr "R の場合: 先にデータを data という名前のデータフレームに読み込んでください。"
-
-#: R/pathfy.b.R
-msgid "In jamovi: paste into the Rj editor (in Rj+, add the model's variables to 'Variables' first)."
-msgstr "jamovi の場合: Rj エディタに貼り付けてください(Rj+ ではモデルで使った変数を先に「Variables」に入れます)。"
-
-#: R/pathfy.b.R
-msgid "Copy Image"
-msgstr "画像をコピー"
-
-#: R/pathfy.b.R
-msgid "Copied"
-msgstr "コピーしました"
-
-#: R/pathfy.b.R
-msgid "Copy failed"
-msgstr "コピーできませんでした"

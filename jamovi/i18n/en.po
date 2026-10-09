@@ -11,70 +11,71 @@ msgstr ""
 msgid "{\"nodes\":[],\"edges\":[]}"
 msgstr ""
 
-#: Pathfy/ui[2][0][0]/ci/ciWidth.suffix
+#: R/pathfy.b.R
+msgid "{width}% CI"
+msgstr ""
+
+#: Pathfy/ui[3][1]/showParamTable/ci/ciWidth.suffix
 msgid "%"
 msgstr ""
 
-#: R/semgui.b.R
-msgid ""
-"← Select variables in the left panel and build your model in the path "
-"diagram editor."
+#: Pathfy/results/parameters.columns.superTitle
+msgid "95% CI"
 msgstr ""
 
 #: package.description
-#: package/analyses/SemGui.description
+#: package/analyses/Pathfy.description
 #: Pathfy/options.description.main
 msgid ""
 "A graphical user interface for structural equation modeling. Supports CFA, "
 "path models, full SEM, higher-order factors, and bifactor models."
 msgstr ""
 
-#: R/semgui.b.R
+#: Pathfy/ui[0][1]/latentVars.addButton
+msgid "Add"
+msgstr ""
+
+#: R/pathfy.b.R
 msgid "Add Covariance"
 msgstr ""
 
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Add Loading"
 msgstr ""
 
-#: R/semgui.b.R
-msgid "Add nodes and paths in the editor."
-msgstr ""
-
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Add Regression"
 msgstr ""
 
+#: Pathfy/ui[4].label
+msgid "Additional Output"
+msgstr ""
+
 #: Pathfy/options/fitAIC.title
+#: Pathfy/results/modelFit/fitMeasures.columns.title
 msgid "AIC"
 msgstr ""
 
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Auto Layout"
 msgstr ""
 
 #: Pathfy/options/fitBIC.title
+#: Pathfy/results/modelFit/fitMeasures.columns.title
 msgid "BIC"
 msgstr ""
 
-#: Pathfy/ui[4][0][0]/residCov/residCovThreshold.label
-msgid "Highlight above"
-msgstr ""
-
-#: Pathfy/ui[4][1][0]/modIndices/modIndicesThreshold.label
-msgid "Show values above"
-msgstr ""
-
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Cancel"
 msgstr ""
 
-#: package/analyses/SemGui.menuSubtitle
+#: package/analyses/Pathfy.menuSubtitle
 #: Pathfy/options.menuSubtitle
 msgid "CFA, Path Models, Full SEM"
 msgstr ""
 
 #: Pathfy/options/fitCFI.title
+#: Pathfy/results/modelFit/fitMeasures.columns.title
 msgid "CFI"
 msgstr ""
 
@@ -91,35 +92,47 @@ msgstr ""
 msgid "Constraints"
 msgstr ""
 
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Delete"
 msgstr ""
 
-#: R/semgui.b.R
-msgid "mean"
-msgstr ""
-
-#: R/semgui.b.R
-msgid "var"
-msgstr ""
-
-#: R/semgui.b.R
+#: Pathfy/results/modelFit/test.columns.title
 msgid "df"
 msgstr ""
 
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Edit variable name"
 msgstr ""
 
-#: R/semgui.b.R
-msgid "Name already used as observed variable."
+#: R/pathfy.b.R
+msgid "Enter a number."
+msgstr ""
+
+#: Pathfy/results/modIndices.columns.title
+msgid "EPC"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "Error above"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "Error below"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "Error left"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "Error right"
 msgstr ""
 
 #: Pathfy/results/parameters.columns.title
 msgid "Estimate"
 msgstr ""
 
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Estimates"
 msgstr ""
 
@@ -131,16 +144,18 @@ msgstr ""
 msgid "F1"
 msgstr ""
 
-#: package/analyses/SemGui.menuGroup
+#: package/analyses/Pathfy.menuGroup
 #: Pathfy/options.menuGroup
 msgid "Factor"
 msgstr ""
 
-#: Pathfy/ui[3][1][0].label
+#: Pathfy/ui[2][1][0].label
+#: Pathfy/results/modelFit/fitMeasures.title
 msgid "Fit Indices"
 msgstr ""
 
-#: Pathfy/ui[3][0][0].label
+#: Pathfy/ui[2][0][0].label
+#: Pathfy/results/modelFit/test.title
 msgid "Fit Tests"
 msgstr ""
 
@@ -152,13 +167,21 @@ msgstr ""
 msgid "Fix first loading to 1"
 msgstr ""
 
+#: R/pathfy.b.R
+msgid "Fix parameter"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "Fix value..."
+msgstr ""
+
 #: Pathfy/options/missing/fiml.title
 msgid "Full Information ML"
 msgstr ""
 
 #: package.title
-#: package/analyses/SemGui.title
-#: package/analyses/SemGui.menuTitle
+#: package/analyses/Pathfy.title
+#: package/analyses/Pathfy.menuTitle
 #: Pathfy/options.title
 #: Pathfy/options.menuTitle
 #: Pathfy/ui.title
@@ -166,35 +189,54 @@ msgstr ""
 msgid "Graphical SEM"
 msgstr ""
 
-#: Pathfy/options/showResiduals.title
-msgid "Residuals"
+#: Pathfy/options/residCovThreshold.title
+#: Pathfy/ui[4][0][0]/residCov/residCovThreshold.label
+msgid "Highlight above"
 msgstr ""
 
-#: Pathfy/results/modelFit.columns.title
-msgid "Index"
+#: R/pathfy.b.R
+msgid ""
+"In jamovi: paste into the Rj editor (in Rj+, add the model's variables to "
+"'Variables' first)."
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "In R: load your data set into a data frame named 'data' first."
+msgstr ""
+
+#: R/spec_to_lavaan.R
+msgid "Invalid constraint value: '{value}' — must be a number."
 msgstr ""
 
 #: Pathfy/results/parameters.columns.title
 msgid "Label"
 msgstr ""
 
+#: R/pathfy.b.R
+msgid ""
+"Latent variable '%s' has no indicators. Add at least one loading before "
+"using it in a path."
+msgstr ""
+
 #: Pathfy/options/latentVars.title
-#: Pathfy/ui[0][1].label
+#: Pathfy/ui[0][1][1].label
 msgid "Latent Variables"
 msgstr ""
 
-msgid "Latent variable '%s' has no indicators. Add at least one loading before using it in a path."
-msgstr ""
-
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "lavaan error: {message}"
 msgstr ""
 
 #: Pathfy/results/lavaanCode.title
-msgid "lavaan Model Syntax"
+msgid "lavaan R Script"
+msgstr ""
+
+#: Pathfy/options/showSyntax.title
+msgid "lavaan syntax"
 msgstr ""
 
 #: Pathfy/results/parameters.columns.title
+#: Pathfy/results/modIndices.columns.title
 msgid "LHS"
 msgstr ""
 
@@ -202,13 +244,28 @@ msgstr ""
 msgid "Listwise deletion"
 msgstr ""
 
+#: Pathfy/results/modelFit/fitMeasures.columns.title
 #: Pathfy/results/parameters.columns.title
-msgid "Lower (95%CI)"
+msgid "Lower"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "mean"
+msgstr ""
+
+#: Pathfy/results/modIndices.columns.title
+msgid "MI"
 msgstr ""
 
 #: Pathfy/options/missing.title
 #: Pathfy/ui[1][1][0].label
 msgid "Missing Data"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid ""
+"Missing data: Listwise deletion (Full Information ML is not available with "
+"this estimator)"
 msgstr ""
 
 #: Pathfy/options/estimator/ml.title
@@ -223,42 +280,53 @@ msgstr ""
 msgid "MLR (Robust)"
 msgstr ""
 
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "Model did not converge. Check model identification."
 msgstr ""
 
-#: Pathfy/ui[3].label
+#: Pathfy/ui[2].label
+#: Pathfy/results/modelFit.title
 msgid "Model Fit"
 msgstr ""
 
+#: Pathfy/ui[4][0][0].label
 msgid "Model Modification"
-msgstr ""
-
-msgid "Model Syntax"
-msgstr ""
-
-msgid "Only continuous (numeric) variables can be used. '%s' is a categorical variable."
-msgstr ""
-
-msgid "Missing data: Listwise deletion (Full Information ML is not available with this estimator)"
-msgstr ""
-
-msgid "Right-click a node to add paths"
-msgstr ""
-
-msgid "Invalid constraint value: '{value}' — must be a number."
-msgstr ""
-
-#: Pathfy/results/modelFit.title
-msgid "Model Fit Indices"
 msgstr ""
 
 #: Pathfy/options/modelSpec.title
 msgid "Model Specification (JSON)"
 msgstr ""
 
-#: R/semgui.b.R
-msgid "No valid paths defined."
+#: Pathfy/ui[4][1][0].label
+msgid "Model Syntax"
+msgstr ""
+
+#: Pathfy/options/modIndices.title
+msgid "Modification indices"
+msgstr ""
+
+#: Pathfy/results/modIndices.title
+msgid "Modification Indices"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "Name already used as observed variable."
+msgstr ""
+
+#: R/pathfy.b.R
+msgid ""
+"No covariance path is drawn between the following latent variables, so they "
+"are estimated as uncorrelated: {pairs}"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid ""
+"No covariance path is drawn between the residuals of the following "
+"variables, so they are fixed to zero: {pairs}"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "Non-ASCII variable names are replaced as above to prevent lavaan errors."
 msgstr ""
 
 #: Pathfy/options/vars.title
@@ -266,77 +334,90 @@ msgstr ""
 msgid "Observed Variables"
 msgstr ""
 
-#: R/semgui.b.R
+#: R/pathfy.b.R
 msgid "OK"
 msgstr ""
 
-#: Pathfy/results/parameters.columns.title
-msgid "Type"
+#: R/pathfy.b.R
+msgid ""
+"Only continuous (numeric) variables can be used. '%s' is a categorical "
+"variable."
 msgstr ""
 
 #: Pathfy/ui[1].label
 msgid "Options"
 msgstr ""
 
-#: Pathfy/ui[2][1][0].label
+#: Pathfy/ui[3].label
 msgid "Output"
 msgstr ""
 
-#: R/semgui.b.R
-msgid "p (χ²)"
-msgstr ""
-
-#: Pathfy/ui[2].label
 #: Pathfy/results/parameters.title
 msgid "Parameter Estimates"
-msgstr ""
-
-#: Pathfy/results/diagram.title
-msgid "Path Diagram Editor"
-msgstr ""
-
-#: Pathfy/results/parameters.columns.title
-msgid "RHS"
-msgstr ""
-
-#: Pathfy/options/fitRMSEA.title
-msgid "RMSEA"
-msgstr ""
-
-#: R/semgui.b.R
-msgid "RMSEA 90%CI lower"
-msgstr ""
-
-#: R/semgui.b.R
-msgid "RMSEA 90%CI upper"
-msgstr ""
-
-msgid "{width}% CI"
-msgstr ""
-
-#: Pathfy/results/parameters.columns.title
-msgid "SE"
-msgstr ""
-
-#: package/analyses/SemGui.menuSubgroup
-#: Pathfy/options.menuSubgroup
-msgid "SEM"
 msgstr ""
 
 #: Pathfy/options/showParamTable.title
 msgid "Parameter estimates table"
 msgstr ""
 
+#: Pathfy/results/diagram.title
+msgid "Path Diagram Editor"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "Remove constraint"
+msgstr ""
+
+#: Pathfy/options/showResiduals.title
+msgid "Residuals"
+msgstr ""
+
+#: Pathfy/options/residCov.title
+msgid "Residuals for observed correlation matrix"
+msgstr ""
+
+#: Pathfy/results/residCov.title
+msgid "Residuals for Observed Correlation Matrix"
+msgstr ""
+
+#: Pathfy/results/parameters.columns.title
+#: Pathfy/results/modIndices.columns.title
+msgid "RHS"
+msgstr ""
+
+#: R/pathfy.b.R
+msgid "Right-click a node to add paths"
+msgstr ""
+
+#: Pathfy/options/fitRMSEA.title
+#: Pathfy/results/modelFit/fitMeasures.columns.title
+msgid "RMSEA"
+msgstr ""
+
+#: Pathfy/results/modelFit/fitMeasures.columns.superTitle
+msgid "RMSEA 90% CI"
+msgstr ""
+
+#: Pathfy/results/parameters.columns.title
+msgid "SE"
+msgstr ""
+
+#: package/analyses/Pathfy.menuSubgroup
+#: Pathfy/options.menuSubgroup
+msgid "SEM"
+msgstr ""
+
+#: Pathfy/options/modIndicesThreshold.title
+msgid "Show values above"
+msgstr ""
+
 #: Pathfy/options/fitSRMR.title
+#: Pathfy/results/modelFit/fitMeasures.columns.title
 msgid "SRMR"
 msgstr ""
 
 #: Pathfy/options/std.title
 msgid "Standardized estimates"
-msgstr ""
-
-#: Pathfy/ui[2][0][0].label
-msgid "Statistics"
 msgstr ""
 
 #: Pathfy/results/parameters.columns.title
@@ -347,27 +428,34 @@ msgstr ""
 msgid "Test statistics"
 msgstr ""
 
-#: Pathfy/results/modelFit.columns.title
-msgid "Threshold"
+#: Pathfy/options/fitTLI.title
+#: Pathfy/results/modelFit/fitMeasures.columns.title
+msgid "TLI"
 msgstr ""
 
-#: Pathfy/options/fitTLI.title
-msgid "TLI"
+#: Pathfy/results/parameters.columns.title
+#: Pathfy/results/modIndices.columns.title
+msgid "Type"
 msgstr ""
 
 #: Pathfy/options/estimator/uls.title
 msgid "ULS"
 msgstr ""
 
+#: R/pathfy.b.R
+msgid "Undo Layout"
+msgstr ""
+
+#: Pathfy/results/modelFit/fitMeasures.columns.title
 #: Pathfy/results/parameters.columns.title
-msgid "Upper (95%CI)"
+msgid "Upper"
 msgstr ""
 
-#: Pathfy/results/modelFit.columns.title
-msgid "Value"
+#: R/pathfy.b.R
+msgid "var"
 msgstr ""
 
-#: Pathfy/ui[2][0][0]/ci/ciWidth.label
+#: Pathfy/ui[3][1]/showParamTable/ci/ciWidth.label
 msgid "Width"
 msgstr ""
 
@@ -377,36 +465,4 @@ msgstr ""
 
 #: Pathfy/options/fitChiSq.title
 msgid "χ² test"
-msgstr ""
-
-#: Pathfy/ui[0][1]/latentVars.addButton
-msgid "Add"
-msgstr ""
-
-#: R/pathfy.b.R
-msgid "Undo Layout"
-msgstr ""
-
-#: R/pathfy.b.R
-msgid "No covariance path is drawn between the following latent variables, so they are estimated as uncorrelated: {pairs}"
-msgstr ""
-
-#: R/pathfy.b.R
-msgid "In R: load your data set into a data frame named 'data' first."
-msgstr ""
-
-#: R/pathfy.b.R
-msgid "In jamovi: paste into the Rj editor (in Rj+, add the model's variables to 'Variables' first)."
-msgstr ""
-
-#: R/pathfy.b.R
-msgid "Copy Image"
-msgstr ""
-
-#: R/pathfy.b.R
-msgid "Copied"
-msgstr ""
-
-#: R/pathfy.b.R
-msgid "Copy failed"
 msgstr ""
