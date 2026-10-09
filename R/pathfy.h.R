@@ -530,7 +530,7 @@ PathfyBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "pathfy",
                 name = "Pathfy",
-                version = c(1,2,0),
+                version = c(1,2,1),
                 options = options,
                 results = PathfyResults$new(options=options),
                 data = data,

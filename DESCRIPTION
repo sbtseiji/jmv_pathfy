@@ -1,7 +1,7 @@
 Package: pathfy
 Type: Package
 Title: Graphical SEM for jamovi
-Version: 1.2.0
+Version: 1.2.1
 Author: Seiji Shibata
 Maintainer: Seiji Shibata <shibata_seiji@isc.sagami-wu.ac.jp>
 Description: A graphical user interface for structural equation modeling in jamovi.
