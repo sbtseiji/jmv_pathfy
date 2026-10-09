@@ -134,7 +134,6 @@
 <div id=\"toolbar\">
   <button id=\"btnEst\" class=\"tool-btn toggle-btn\">%%LABEL_SHOW_EST%%</button>
   <span class=\"spacer\"></span>
-  <button id=\"btnCopyImage\" class=\"tool-btn\">%%LABEL_COPY_IMAGE%%</button>
   <button id=\"btnUndoLayout\" class=\"tool-btn\" style=\"display:none\">%%LABEL_UNDO_LAYOUT%%</button>
   <button id=\"btnLayout\" class=\"tool-btn\">%%LABEL_LAYOUT%%</button>
 </div>
@@ -1320,97 +1319,6 @@
 
   document.getElementById('btnLayout').addEventListener('click', autoLayout);
   btnUndoLayout.addEventListener('click', undoLayout);
-
-  /* ── copy as image ──────────────────────────────────────── */
-
-  /* The diagram as a standalone SVG document, cropped to its content and
-     without anything that belongs to the editor (selection, hit areas, hint). */
-  function diagramSvg() {
-    var keep={selId:selId,selType:selType,selNodes:selNodes};
-    selId=null; selType=null; selNodes={};
-    render();
-    var clone=svg.cloneNode(true);
-    selId=keep.selId; selType=keep.selType; selNodes=keep.selNodes;
-    render();
-
-    var drop=clone.querySelectorAll('.edge-preview, .marquee, .canvas-hint, [stroke=\"transparent\"]');
-    for (var i=0;i<drop.length;i++) drop[i].parentNode.removeChild(drop[i]);
-
-    /* bounding box of the nodes, error terms and arcs, measured on the live canvas */
-    var x0=Infinity, y0=Infinity, x1=-Infinity, y1=-Infinity;
-    var parts=svg.querySelectorAll('g.node, g.edge');
-    for (var j=0;j<parts.length;j++) {
-      var b=parts[j].getBBox();
-      if (!b.width&&!b.height) continue;
-      x0=Math.min(x0,b.x); y0=Math.min(y0,b.y); x1=Math.max(x1,b.x+b.width); y1=Math.max(y1,b.y+b.height);
-    }
-    if (x0===Infinity) { x0=0; y0=0; x1=CANVAS_W; y1=CANVAS_H; }
-    var pad=14, w=Math.ceil(x1-x0+2*pad), h=Math.ceil(y1-y0+2*pad);
-    clone.removeAttribute('id'); clone.removeAttribute('style');
-    clone.setAttribute('viewBox',(x0-pad)+' '+(y0-pad)+' '+w+' '+h);
-    clone.setAttribute('width',w); clone.setAttribute('height',h);
-    var bg=mkEl('rect',{x:x0-pad,y:y0-pad,width:w,height:h,fill:'#fff'});
-    clone.insertBefore(bg, clone.firstChild);
-    return {text:new XMLSerializer().serializeToString(clone), width:w, height:h};
-  }
-
-  /* PNG of the diagram at twice the screen resolution */
-  function diagramPng() {
-    return new Promise(function(resolve, reject) {
-      var d=diagramSvg(), img=new Image(), scale=2;
-      img.onload=function() {
-        var c=document.createElement('canvas');
-        c.width=d.width*scale; c.height=d.height*scale;
-        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-        c.toBlob(function(blob){ if (blob) resolve(blob); else reject(new Error('no image')); },'image/png');
-      };
-      img.onerror=function(){ reject(new Error('could not render the diagram')); };
-      img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(d.text);
-    });
-  }
-
-  var btnCopyImage=document.getElementById('btnCopyImage');
-  var copyLabel=btnCopyImage.textContent, copyTimer=null;
-  function copyFeedback(text) {
-    btnCopyImage.textContent=text;
-    if (copyTimer) clearTimeout(copyTimer);
-    copyTimer=setTimeout(function(){ btnCopyImage.textContent=copyLabel; copyTimer=null; },1800);
-  }
-
-  /* Where the clipboard API is not available to this page, copy an <img> of
-     the picture out of a temporary selection instead. */
-  function copyBySelection(blob) {
-    return new Promise(function(resolve, reject) {
-      var reader=new FileReader();
-      reader.onerror=function(){ reject(reader.error); };
-      reader.onload=function() {
-        var holder=document.createElement('div');
-        holder.contentEditable='true';
-        holder.style.cssText='position:fixed;left:-9999px;top:0;';
-        var img=document.createElement('img'); img.src=reader.result;
-        holder.appendChild(img); document.body.appendChild(holder);
-        var range=document.createRange(); range.selectNode(img);
-        var sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
-        var ok=false;
-        try { ok=document.execCommand('copy'); } catch(e) {}
-        sel.removeAllRanges(); document.body.removeChild(holder);
-        if (ok) resolve(); else reject(new Error('copy refused'));
-      };
-      reader.readAsDataURL(blob);
-    });
-  }
-
-  btnCopyImage.addEventListener('click', function() {
-    var png=diagramPng();
-    var done;
-    try {
-      /* handed over as a promise, so that the write starts within the click */
-      done=navigator.clipboard.write([new ClipboardItem({'image/png':png})]);
-    } catch(e) { done=Promise.reject(e); }
-    done.catch(function(){ return png.then(copyBySelection); })
-        .then(function(){ copyFeedback(%%LABEL_COPIED%%); },
-              function(){ copyFeedback(%%LABEL_COPY_FAILED%%); });
-  });
 
   btnEst.addEventListener('click', function() {
     showEst = !showEst;

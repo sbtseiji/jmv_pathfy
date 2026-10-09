@@ -42,7 +42,7 @@ Download the latest `.jmo` file from the [Releases](../../releases) page, then i
 4. **View estimates** — click the **Estimates** button to overlay coefficients on the diagram
 5. **Tidy up** — click **Auto Layout** to arrange the diagram: factors in rows with their indicators below for measurement models, in causal order from left to right when there are regressions. **Undo Layout**, which appears next to it afterwards, puts the nodes (and error terms) back where they were before the last Auto Layout
 6. **Move several nodes at once** — drag over the empty canvas to select the nodes inside the rectangle, or shift-click nodes to add them to or remove them from the selection; dragging any selected node moves them all
-7. **Use the diagram elsewhere** — click **Copy Image** to put a picture of the diagram (PNG, cropped to the diagram) on the clipboard. The diagram is also included when the results are exported from jamovi (e.g. to PDF)
+7. **Use the diagram elsewhere** — the diagram is included when the results are exported from jamovi (e.g. to PDF)
 
 ### Edge types
 

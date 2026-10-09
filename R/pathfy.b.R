@@ -527,9 +527,6 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             # Toolbar labels (HTML text content)
             html <- gsub("%%LABEL_LAYOUT%%",        htmlEscape(.("Auto Layout")),                        html, fixed = TRUE)
             html <- gsub("%%LABEL_UNDO_LAYOUT%%",   htmlEscape(.("Undo Layout")),                        html, fixed = TRUE)
-            html <- gsub("%%LABEL_COPY_IMAGE%%",    htmlEscape(.("Copy Image")),                         html, fixed = TRUE)
-            html <- gsub("%%LABEL_COPIED%%",        jsString(.("Copied")),                               html, fixed = TRUE)
-            html <- gsub("%%LABEL_COPY_FAILED%%",   jsString(.("Copy failed")),                          html, fixed = TRUE)
             html <- gsub("%%LABEL_SHOW_EST%%",      htmlEscape(.("Estimates")),                          html, fixed = TRUE)
             html <- gsub("%%LABEL_HINT_RIGHTCLICK%%", jsString(.("Right-click a node to add paths")), html, fixed = TRUE)
 
