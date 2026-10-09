@@ -214,6 +214,7 @@ test_that("Covariances that are not drawn are fixed to zero: three-factor CFA", 
     ")
     expect_equal(result$uncorrelated, list(
         c("visual", "textual"), c("visual", "speed"), c("textual", "speed")))
+    expect_length(result$uncorrelatedResiduals, 0)
 
     # estimated as an orthogonal model by a default sem() call
     fit <- lavaan::sem(result$syntax, data = lavaan::HolzingerSwineford1939)
@@ -248,7 +249,7 @@ test_that("A covariance drawn and fixed by the user is not reported as undrawn",
     expect_equal(result$uncorrelated, list(c("visual", "speed"), c("textual", "speed")))
 })
 
-test_that("Residual covariances of outcomes are fixed to zero without a warning", {
+test_that("Residual covariances of outcomes fixed to zero are reported apart from the latent ones", {
     result <- spec_to_lavaan(make_spec(character(0), list(
         c("x1", "~>", "x4"), c("x2", "~>", "x4"),
         c("x1", "~>", "x5"), c("x2", "~>", "x5"))))
@@ -258,6 +259,16 @@ test_that("Residual covariances of outcomes are fixed to zero without a warning"
         x4 ~~ 0*x5
     ")
     expect_length(result$uncorrelated, 0)
+    expect_equal(result$uncorrelatedResiduals, list(c("x4", "x5")))
+
+    # two latent outcomes of the same factor, under their original labels
+    result <- spec_to_lavaan(make_spec(c("因子1", "因子2", "因子3"), c(
+        loadings_of("因子1", c("x1", "x2", "x3")),
+        loadings_of("因子2", c("x4", "x5", "x6")),
+        loadings_of("因子3", c("x7", "x8", "x9")),
+        list(c("因子1", "~>", "因子2"), c("因子1", "~>", "因子3")))))
+    expect_length(result$uncorrelated, 0)
+    expect_equal(result$uncorrelatedResiduals, list(c("因子2", "因子3")))
 })
 
 test_that("Uncorrelated latent variables are reported under their original labels", {

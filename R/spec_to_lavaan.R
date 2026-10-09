@@ -79,14 +79,17 @@ spec_to_lavaan <- function(spec) {
     undrawn <- undrawn_covariances(paste(lines, collapse = "\n"))
     lines <- c(lines, undrawn$lines)
 
+    originalLabels <- function(pairs) lapply(pairs, function(pair)
+        vapply(pair, function(v)
+            if (!is.null(safeToLabel[[v]])) safeToLabel[[v]] else v,
+            character(1), USE.NAMES = FALSE))
+
     list(
         syntax       = paste(lines, collapse = "\n"),
         safeToLabel  = safeToLabel,
         labelToSafe  = labelToSafe,
-        uncorrelated = lapply(undrawn$uncorrelated, function(pair)
-            vapply(pair, function(v)
-                if (!is.null(safeToLabel[[v]])) safeToLabel[[v]] else v,
-                character(1), USE.NAMES = FALSE))
+        uncorrelated = originalLabels(undrawn$uncorrelated),
+        uncorrelatedResiduals = originalLabels(undrawn$uncorrelatedResiduals)
     )
 }
 
@@ -98,10 +101,11 @@ spec_to_lavaan <- function(spec) {
 # add, rather than re-deriving its rules here: a pair missed by a hand-written
 # rule would silently be estimated.
 #
-# `uncorrelated` lists the pairs of exogenous latent variables among them,
-# which the caller reports to the user.
+# `uncorrelated` lists the pairs of exogenous latent variables among them and
+# `uncorrelatedResiduals` the remaining pairs (residuals of outcomes); the
+# caller reports both to the user.
 undrawn_covariances <- function(syntax) {
-    none <- list(lines = character(0), uncorrelated = list())
+    none <- list(lines = character(0), uncorrelated = list(), uncorrelatedResiduals = list())
 
     # Same auto.* defaults as lavaan::sem(). A syntax lavaan cannot parse is
     # left as is, so that the error is reported by the fit itself.
@@ -135,8 +139,11 @@ undrawn_covariances <- function(syntax) {
     exoLatent <- setdiff(latent, dependent)
     isUncorrelated <- auto$lhs %in% exoLatent & auto$rhs %in% exoLatent
 
+    pairs <- function(rows) Map(c, auto$lhs[rows], auto$rhs[rows], USE.NAMES = FALSE)
+
     list(
         lines        = paste0(auto$lhs, " ~~ 0*", auto$rhs),
-        uncorrelated = Map(c, auto$lhs[isUncorrelated], auto$rhs[isUncorrelated], USE.NAMES = FALSE)
+        uncorrelated = pairs(isUncorrelated),
+        uncorrelatedResiduals = pairs(!isUncorrelated)
     )
 }

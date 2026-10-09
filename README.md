@@ -58,7 +58,8 @@ Download the latest `.jmo` file from the [Releases](../../releases) page, then i
 Only the covariances drawn in the diagram are estimated. lavaan by default correlates exogenous latent variables, and the residuals of outcomes that predict nothing else, even when the model syntax does not mention them; pathfy fixes each such covariance that is not drawn to zero, and writes it into the model syntax as `A ~~ 0*B`.
 
 - Factors in a CFA are therefore **uncorrelated unless you draw a covariance path** between them (right-click a factor → **Add Covariance**)
-- When latent variables are left uncorrelated this way, a notice below the diagram lists the pairs, e.g. *"No covariance path is drawn between the following latent variables, so they are estimated as uncorrelated: F1 <-> F2"*. Zero residual covariances are not reported
+- When latent variables are left uncorrelated this way, a notice below the diagram lists the pairs, e.g. *"No covariance path is drawn between the following latent variables, so they are estimated as uncorrelated: F1 <-> F2"*
+- Residual covariances between outcomes that are fixed to zero this way are listed in a second notice
 - Covariances among observed predictors are not affected: as in lavaan, they are fixed to their sample values
 
 > **Changed in 1.2.0.** Earlier versions let lavaan add these covariances. A file saved with an earlier version in which such covariances were not drawn gives different results when reopened in 1.2.0 or later; draw the covariance paths to get the earlier model back.

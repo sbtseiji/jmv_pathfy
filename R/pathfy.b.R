@@ -78,7 +78,8 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                         # each is inserted above the last, so the warning comes first
                         if (fimlFallback)
                             private$.noteFimlFallback()
-                        private$.warnUncorrelated(lavaanResult$uncorrelated)
+                        private$.noteUndrawn(lavaanResult$uncorrelated,
+                                             lavaanResult$uncorrelatedResiduals)
 
                         std.lv    <- self$options$identification == "variance"
 
@@ -232,24 +233,36 @@ PathfyClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
             )
         },
 
-        # Exogenous latent variables with no covariance path drawn between
-        # them are fixed to be uncorrelated (see undrawn_covariances()); say so
-        # in the results, since lavaan would otherwise have correlated them.
-        .warnUncorrelated = function(pairs) {
-            if (length(pairs) == 0) return()
-            pairText <- paste(
+        # Covariances that are not drawn in the diagram are fixed to zero (see
+        # undrawn_covariances()); say so in the results, since lavaan would
+        # otherwise have estimated them.
+        .noteUndrawn = function(latentPairs, residualPairs) {
+            pairText <- function(pairs) paste(
                 vapply(pairs, function(p) paste0(p[1], " <-> ", p[2]), character(1)),
                 collapse = ", "
             )
-            notice <- jmvcore::Notice$new(
-                options = self$options,
-                name    = "uncorrelated",
-                type    = jmvcore::NoticeType$WARNING
-            )
-            notice$setContent(jmvcore::format(
-                .("No covariance path is drawn between the following latent variables, so they are estimated as uncorrelated: {pairs}"),
-                pairs = pairText))
-            self$results$insert(2, notice)
+            if (length(residualPairs) > 0) {
+                notice <- jmvcore::Notice$new(
+                    options = self$options,
+                    name    = "uncorrelatedResiduals",
+                    type    = jmvcore::NoticeType$INFO
+                )
+                notice$setContent(jmvcore::format(
+                    .("No covariance path is drawn between the residuals of the following variables, so they are fixed to zero: {pairs}"),
+                    pairs = pairText(residualPairs)))
+                self$results$insert(2, notice)
+            }
+            if (length(latentPairs) > 0) {
+                notice <- jmvcore::Notice$new(
+                    options = self$options,
+                    name    = "uncorrelated",
+                    type    = jmvcore::NoticeType$WARNING
+                )
+                notice$setContent(jmvcore::format(
+                    .("No covariance path is drawn between the following latent variables, so they are estimated as uncorrelated: {pairs}"),
+                    pairs = pairText(latentPairs)))
+                self$results$insert(2, notice)
+            }
         },
 
         # Full Information ML was selected with an estimator that does not
